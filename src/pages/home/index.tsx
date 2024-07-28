@@ -1,17 +1,21 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-28 16:54:01
+ * @LastEditTime: 2024-07-28 23:31:27
  */
 
 import { InferGetStaticPropsType } from "next";
 import styles from "./index.module.scss";
 import { RightArrowSvg } from "@/components/svg/index";
 import Slider from "@/plugin/slider";
+import { message } from "antd";
 
 function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
+  const [, contextHolder] = message.useMessage();
+
   return (
     <div className={styles.container}>
+      {contextHolder}
       <div className={styles.left}>
         <div className={styles.title}>这是测试样式 {params.posts}</div>
         <div className={styles.content}>
