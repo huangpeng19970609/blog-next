@@ -1,0 +1,26 @@
+
+html, body {
+  height: 100%;
+}
+
+a:-webkit-any-link {
+  color: var(--font-color);
+  text-decoration: unset;
+}
+
+:root {
+  --body-bg-color: black;
+  --main-bg-color: white;
+  --font-color: pink;
+}
+
+#__next {
+  height: 100%;
+  >div {
+    height: 100%;
+  }
+}
+
+html {
+  background-color:  var(--main-bg-color)
+}

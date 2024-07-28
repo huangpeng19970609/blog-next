@@ -1,0 +1,36 @@
+.left, .right {
+  height: 100%;
+  border: 1px solid black;
+  width: 50%;
+}
+.container {
+  display: flex;
+  height: 100%;
+  padding-top: 150px;
+}
+
+// 右侧区域
+.left {
+  // 标题
+  .title {
+    font-family: eksell_rm_large, sans-serif;
+    font-size: 9.375vw;
+    line-height: 1em;
+    margin-bottom: 0.91vw;
+    color: red;
+    -webkit-text-stroke: 2px rgb(254, 52, 72);
+    text-wrap: nowrap;
+  }
+  // 内容
+  .content {
+    width: 70%;
+    font-family: silka_rm, sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.6em;
+    pointer-events: auto;
+    display: block;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
