@@ -1,12 +1,11 @@
 .left, .right {
   height: 100%;
-  border: 1px solid black;
   width: 50%;
 }
 .container {
   display: flex;
-  height: 100%;
-  padding-top: 150px;
+  margin-top: 150px;
+  max-height: calc(100% - 90px);
 }
 
 // 右侧区域

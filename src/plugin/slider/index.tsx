@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-28 18:29:22
+ * @LastEditTime: 2024-07-28 20:35:21
  * @Description: 这是一个注释
  */
 
@@ -11,7 +11,7 @@ import styles from "./index.module.scss";
 import Image from "next/image";
 
 function Slider() {
-  const width = 400;
+  const width = 600;
 
   const height = 400;
 
@@ -31,25 +31,40 @@ function Slider() {
   const [activeStep, setActiveStep] = useState<number>(0);
 
   const ImageList = List.map((item, index) => {
-    const translateY =
-      "translateY(" + (activeStep - index) * -1 * (height + 20) + "px)";
+    const isActive = activeStep === index;
+
+    const finallyWidth = isActive ? width + 40 : width;
+
+    const transform =
+      "translateY(" +
+      (activeStep - index) * -1 * (height + 20) +
+      "px) rotate3d(-2, 12, 2, 30deg)";
 
     return (
       <div
-        className={styles["image-list-item"]}
-        key={item.url}
-        style={{
-          transform: translateY,
-        }}
-      >
-        {
-          <Image
-            width={width}
-            height={height}
-            alt="Picture of the author"
-            src={item.url}
-          ></Image>
+        className={
+          (styles["image-list-item-container"],
+          styles["slide-rotate-ver-r-bck"])
         }
+        key={item.url}
+      >
+        <div
+          className={styles["image-list-item"]}
+          style={{
+            transform: transform,
+            opacity: isActive ? "" : "0.4",
+          }}
+        >
+          {
+            <Image
+              width={finallyWidth}
+              height={height}
+              alt="Picture of the author"
+              src={item.url}
+            ></Image>
+          }
+          <div style={{ width: "100%", height: "100%" }}></div>
+        </div>
       </div>
     );
   });
