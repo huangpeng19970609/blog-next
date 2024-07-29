@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-28 23:55:27
+ * @LastEditTime: 2024-07-29 22:54:31
  * @Description: 这是blog使用的业务组件
  */
 
@@ -66,7 +66,7 @@ const BlogList: React.FC = () => (
       >
         <List.Item.Meta
           avatar={<Avatar src={item.avatar} />}
-          title={<Link href={"blog/detail"}>Go Blog/Detail</Link>}
+          title={<Link href={"blog/detail/3"}>Go Blog/Detail</Link>}
           description={item.description}
         />
         {/* {item.content} */}

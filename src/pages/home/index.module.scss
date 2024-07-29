@@ -1,11 +1,25 @@
 .left, .right {
   height: 100%;
+}
+.padding {
+  background: var(--padding-right-color); 
+  width: 10px;
+  position: absolute;
+  top: -200px;
+  height: 2000px;
+}
+.left {
+  width: 45%;
+}
+.right {
   width: 50%;
 }
 .container {
   display: flex;
   margin-top: 150px;
-  max-height: calc(100% - 90px);
+  // header 高度 + padding高度 一共为 90 + 150
+  height: calc(100% - 150px - 90px);
+  overflow: hidden;
 }
 
 // 右侧区域
@@ -16,8 +30,7 @@
     font-size: 9.375vw;
     line-height: 1em;
     margin-bottom: 0.91vw;
-    color: red;
-    -webkit-text-stroke: 2px rgb(254, 52, 72);
+    color: var(--title-color);
     text-wrap: nowrap;
   }
   // 内容
@@ -31,5 +44,6 @@
     display: block;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: var(--font-color);
   }
 }

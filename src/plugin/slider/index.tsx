@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-28 20:35:21
+ * @LastEditTime: 2024-07-29 23:55:32
  * @Description: 这是一个注释
  */
 
@@ -9,6 +9,52 @@ import { useState } from "react";
 import styles from "./index.module.scss";
 
 import Image from "next/image";
+import { ColorUtils } from "@/utils/css";
+
+const Theme = [
+  {
+    bgColor: "rgb(61, 102, 129)",
+    titleColor: "rgb(213, 222, 221)",
+    fontColor: "white",
+    paddingColor: "rgb(213, 222, 221)",
+  },
+  {
+    bgColor: "rgb(245, 248, 255)",
+    titleColor: "red",
+    fontColor: "black",
+    paddingColor: "red",
+  },
+  {
+    bgColor: "rgb(194, 55, 90)",
+    titleColor: "rgb(210, 210, 210)",
+    fontColor: "white",
+    paddingColor: "rgb(210, 210, 210)",
+  },
+  {
+    bgColor: "rgb(122, 185, 224)",
+    titleColor: "rgb(255, 247, 148)",
+    fontColor: "white",
+    paddingColor: "rgb(255, 247, 148)",
+  },
+  {
+    bgColor: "rgb(1, 90, 98)",
+    titleColor: "rgb(204, 186, 142)",
+    fontColor: "white",
+    paddingColor: "rgb(204, 186, 142)",
+  },
+  {
+    bgColor: "white",
+    titleColor: "rgb(255, 111, 100)",
+    fontColor: "black",
+    paddingColor: "rgb(255, 111, 100)",
+  },
+  {
+    bgColor: "rgb(242, 125, 181)",
+    titleColor: "rgb(102, 255, 222)",
+    fontColor: "white",
+    paddingColor: "rgb(102, 255, 222)",
+  },
+];
 
 function Slider() {
   const width = 600;
@@ -16,6 +62,18 @@ function Slider() {
   const height = 400;
 
   const List = [
+    {
+      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
+    },
+    {
+      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
+    },
+    {
+      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
+    },
+    {
+      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
+    },
     {
       url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
     },
@@ -38,7 +96,7 @@ function Slider() {
     const transform =
       "translateY(" +
       (activeStep - index) * -1 * (height + 20) +
-      "px) rotate3d(-2, 12, 2, 30deg)";
+      "px) translate3d(0px, 0px, 30px) rotateX(0deg) rotateY(-50deg) scale(1) rotate3d(0, 1, 6, 6deg)";
 
     return (
       <div
@@ -71,6 +129,16 @@ function Slider() {
 
   const buttonClick = (index: number) => {
     setActiveStep(index);
+    // TODO: 变更主题颜色 这里虽然很耦合 以后修改?
+
+    if (Theme[index]) {
+      const themeItem = Theme[index];
+
+      ColorUtils.changeFontColor(themeItem.fontColor);
+      ColorUtils.changeMainColor(themeItem.bgColor);
+      ColorUtils.changePaddingColor(themeItem.paddingColor);
+      ColorUtils.changeTitleColor(themeItem.titleColor);
+    }
   };
 
   const ButtonList = List.map((item, index) => {

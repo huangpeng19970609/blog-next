@@ -12,8 +12,11 @@ a:-webkit-any-link {
 
 :root {
   --body-bg-color: black;
-  --main-bg-color: white;
-  --font-color: pink;
+
+  --main-bg-color: rgb(61, 102, 129);
+  --title-color: rgb(213, 222, 221);
+  --font-color: white;
+  --padding-right-color: rgb(213, 222, 221)
 }
 
 #__next {
@@ -25,4 +28,9 @@ a:-webkit-any-link {
 
 html {
   background-color:  var(--main-bg-color)
+}
+
+
+.font-color {
+  color: var(--font-color);
 }

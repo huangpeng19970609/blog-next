@@ -13,12 +13,12 @@
     position: absolute;
     
   }
-  .image-list-item-container {
-
-  }
   .image-list-item {
     width: 100%;
     transition: opacity 0.5s ease, transform 0.5s ease-in 0s;
+    img {
+      box-shadow: 10px 10px 24px -8px black;
+    }
   }
 
 }
