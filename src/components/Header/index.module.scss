@@ -1,10 +1,12 @@
 .header {
   display: flex;
+  font-family: silka_rm, sans-serif;
   -webkit-box-align: center;
   align-items: center;
   -webkit-box-pack: justify;
   height: 90px;
   font-size: 14px;
+  padding-left: 20px;
 }
 .font-style {
   font-family: silka_rm, sans-serif;
@@ -18,7 +20,7 @@
   justify-content: flex-start;
   pointer-events: auto;
   cursor: pointer;
-  color: var(--font-color);
+  color: var(--title-color);
   padding: 10px;
 }
 
