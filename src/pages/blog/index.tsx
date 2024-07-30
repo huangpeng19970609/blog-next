@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-28 23:51:14
+ * @LastEditTime: 2024-07-30 22:58:23
  * @Description: 博客菜单
  */
 import LeftMenu from "@/components/LeftMenu";
@@ -62,6 +62,10 @@ function Blog() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const [activeMenuKey, setActiveMenuKey] = useState<string>();
+
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+  }, []);
 
   const handleModeChange = (e: RadioChangeEvent) => {
     setMode(e.target.value);

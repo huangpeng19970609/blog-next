@@ -1,15 +1,16 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-29 23:55:32
+ * @LastEditTime: 2024-07-30 23:46:29
  * @Description: 这是一个注释
  */
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./index.module.scss";
 
 import Image from "next/image";
 import { ColorUtils } from "@/utils/css";
+import { debounce, throttle } from "lodash";
 
 const Theme = [
   {
@@ -57,9 +58,9 @@ const Theme = [
 ];
 
 function Slider() {
-  const width = 600;
+  const width = 900;
 
-  const height = 400;
+  const height = 500;
 
   const List = [
     {
@@ -88,6 +89,8 @@ function Slider() {
   // 默认显示第一张图片
   const [activeStep, setActiveStep] = useState<number>(0);
 
+  const activeStepRef = useRef<number>(0);
+
   const ImageList = List.map((item, index) => {
     const isActive = activeStep === index;
 
@@ -104,7 +107,7 @@ function Slider() {
           (styles["image-list-item-container"],
           styles["slide-rotate-ver-r-bck"])
         }
-        key={item.url}
+        key={index}
       >
         <div
           className={styles["image-list-item"]}
@@ -129,6 +132,7 @@ function Slider() {
 
   const buttonClick = (index: number) => {
     setActiveStep(index);
+    activeStepRef.current = index;
     // TODO: 变更主题颜色 这里虽然很耦合 以后修改?
 
     if (Theme[index]) {
@@ -143,7 +147,7 @@ function Slider() {
 
   const ButtonList = List.map((item, index) => {
     return (
-      <div key={item.url} onClick={() => buttonClick(index)}>
+      <div key={index} onClick={() => buttonClick(index)}>
         <div
           className={styles["button"]}
           style={
@@ -157,6 +161,39 @@ function Slider() {
       </div>
     );
   });
+
+  const onWheel = useCallback(
+    debounce((e: WheelEvent) => {
+      const deltaY = e.deltaY;
+
+      const val = activeStepRef.current;
+
+      // 向下
+      if (deltaY > 0) {
+        if (val + 1 <= List.length - 1) {
+          setActiveStep(val + 1);
+          activeStepRef.current = val + 1;
+        }
+      }
+      // 向上
+      else {
+        if (val - 1 >= 0) {
+          setActiveStep(val - 1);
+          activeStepRef.current = val - 1;
+        }
+      }
+
+      buttonClick(activeStepRef.current);
+    }, 100),
+    []
+  );
+  useEffect(() => {
+    window.addEventListener("wheel", onWheel);
+
+    return function () {
+      window.removeEventListener("wheel", onWheel);
+    };
+  }, []);
 
   return (
     <div className={styles.container}>

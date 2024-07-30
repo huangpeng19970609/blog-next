@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-29 23:34:52
+ * @LastEditTime: 2024-07-30 23:20:14
  */
 
 import { InferGetStaticPropsType } from "next";
@@ -9,9 +9,15 @@ import styles from "./index.module.scss";
 import { RightArrowSvg } from "@/components/svg/index";
 import Slider from "@/plugin/slider";
 import { message } from "antd";
+import { useCallback, useEffect } from "react";
+import { throttle } from "lodash";
 
 function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   const [, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+  }, []);
 
   return (
     <div className={styles.container}>
