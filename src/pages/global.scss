@@ -34,3 +34,8 @@ html {
 .font-color {
   color: var(--font-color);
 }
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #eaeaea transparent;
+}

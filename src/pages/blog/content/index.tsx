@@ -1,11 +1,12 @@
 import Bytemd from "@/components/BytemdComponent";
-import { commonFetch } from "@/fetch";
 import { forwardRef, useImperativeHandle, useState } from "react";
+import styles from "./index.module.scss";
+import { Divider } from "antd";
 
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-11-03 20:18:34
+ * @LastEditTime: 2024-11-03 22:47:35
  * @Description: 这是一个注释
  */
 function Content(props, ref) {
@@ -21,8 +22,11 @@ function Content(props, ref) {
 
   return (
     <>
-      1231412
-      <Bytemd value={value || ""} setValue={setValue} isReadonly />;
+      <div className={styles.container}>
+        <div className={styles.title}> {value?.title} </div>
+        <Divider />
+        <Bytemd value={value?.file || ""} setValue={setValue} isReadonly />
+      </div>
     </>
   );
 }

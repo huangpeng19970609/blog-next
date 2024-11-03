@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-11-03 21:05:47
+ * @LastEditTime: 2024-11-03 22:45:53
  * @Description: 博客菜单
  */
 import LeftMenu from "@/components/LeftMenu";
@@ -58,13 +58,16 @@ function Blog(props) {
       commonFetch<any>(url, {
         method: "GET",
       }).then((res) => {
-        debugger;
-
         console.log("loading");
 
         res.text().then((val) => {
+          const obj = {
+            // 文件的string流
+            file: val,
+            title: url.replace(/^md\//, ""),
+          };
           // 触发右侧content事件
-          contentRef?.current.childMethod(val);
+          contentRef?.current.childMethod(obj);
         });
       });
     }

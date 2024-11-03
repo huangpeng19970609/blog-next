@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-11-03 16:09:20
+ * @LastEditTime: 2024-11-03 23:05:08
  * @Description: 这是一个注释
  */
 import React from "react";
@@ -14,6 +14,24 @@ import frontmatter from "@bytemd/plugin-frontmatter"; // 解析前题
 import mediumZoom from "@bytemd/plugin-medium-zoom"; // 缩放图片
 import "bytemd/dist/index.min.css"; // bytemd基础样式必须引入！！！
 import "juejin-markdown-themes/dist/juejin.min.css"; // 掘金同款样式
+
+// bytemd底层用的是remark、rehype，因此查找rehype插件，这里用到的是 rehype-slug 插件, 该插件能获取到所有标题标签并为其添加id
+import rehypeSlug from "rehype-slug";
+import toc from "remark-extract-toc";
+import markdown from "remark-parse";
+import { unified } from "unified";
+
+const getTocTree = (val: string): TocTree => {
+  try {
+    const processor = unified().use(markdown, { commonmark: true }).use(toc);
+    const node = processor.parse(val);
+    const tree = processor.runSync(node);
+    return tree as unknown as TocTree;
+  } catch (error) {
+    return [];
+  }
+};
+
 interface EditorProps {
   value: string;
   setValue: any;
@@ -25,6 +43,8 @@ const plugins = [
   mediumZoom(), // 图片缩放
 ];
 const Bytemd: React.FC<EditorProps & { isReadonly?: boolean }> = (props) => {
+  const val = getTocTree(props.value);
+  debugger;
   if (props.isReadonly) {
     return (
       <div className="md-viewer">
@@ -32,13 +52,18 @@ const Bytemd: React.FC<EditorProps & { isReadonly?: boolean }> = (props) => {
       </div>
     );
   }
+
+  const onChange = (v) => {
+    props.setValue(v);
+  };
+
   return (
     <>
       <Editor
         locale={zhHans}
         plugins={plugins}
         value={props.value}
-        onChange={(v) => props.setValue(v)}
+        onChange={onChange}
         // uploadImages={async (files: any) => {
         //   let imgUrl = "";
         //   let fromData = new FormData();
