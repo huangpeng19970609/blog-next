@@ -1,65 +1,29 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-07-30 22:58:23
+ * @LastEditTime: 2024-11-03 21:05:47
  * @Description: 博客菜单
  */
 import LeftMenu from "@/components/LeftMenu";
 import styles from "./index.module.scss";
 import { MenuProps, message, Radio, RadioChangeEvent } from "antd";
-import { useEffect, useState } from "react";
-import BlogList from "@/pages-component/blog/List";
+import { useEffect, useRef, useState } from "react";
+import Content from "./content/index";
+import getConfig from "next/config";
+import { getFileTree, IFolder } from "@/utils/node";
+import { commonFetch } from "@/fetch";
+import { MenuInfo } from "@/type/react.type";
 
 type TabPosition = "left" | "right" | "top" | "bottom";
-type MenuItem = Required<MenuProps>["items"][number];
-const items: MenuItem[] = [
-  { key: "JavaScript", label: "JavaScript" },
-  {
-    type: "divider",
-  },
-  { key: "Vue", label: "Vue" },
-  {
-    type: "divider",
-  },
-  { key: "React", label: "React、" },
-  {
-    type: "divider",
-  },
-  { key: "14", label: "TS" },
-];
-const items2: MenuItem[] = [
-  {
-    key: "grp1231",
-    label: "Group",
-    type: "group",
-    children: [
-      { key: "1223", label: "123qwrqrwqrwq213131 13" },
-      { key: "1224", label: "wqrqrwqrqwr 14" },
-    ],
-  },
-  {
-    type: "divider",
-  },
-  {
-    key: "gr232312p",
-    label: "Group",
-    type: "group",
-    children: [
-      { key: "143", label: "12312312 13" },
-      { key: "154", label: "Option 14qr" },
-    ],
-  },
-  {
-    type: "divider",
-  },
-];
 
-function Blog() {
+function Blog(props) {
   const [messageApi, contextHolder] = message.useMessage();
 
   const [mode, setMode] = useState<TabPosition>("top");
 
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuItems, setMenuItems] = useState<IFolder[]>(
+    JSON.parse(props.lists)
+  );
 
   const [activeMenuKey, setActiveMenuKey] = useState<string>();
 
@@ -72,15 +36,7 @@ function Blog() {
   };
 
   // mode => menus
-  useEffect(() => {
-    let resultMenuITems = [];
-    if (mode === "top") {
-      resultMenuITems = items;
-    } else {
-      resultMenuITems = items2;
-    }
-    setMenuItems(resultMenuITems);
-  }, [mode]);
+  useEffect(() => {}, [mode]);
 
   // menuActive => rightPanel的内容
   useEffect(() => {
@@ -90,6 +46,29 @@ function Blog() {
     }
     messageApi.error("目前不支持" + activeMenuKey);
   }, [activeMenuKey, messageApi]);
+
+  const contentRef = useRef();
+
+  const menuChange = (e: MenuInfo) => {
+    if (contentRef.current) {
+      // TODO: 暂时如此处理
+
+      const url = e.key.replace(/^public\//, "");
+
+      commonFetch<any>(url, {
+        method: "GET",
+      }).then((res) => {
+        debugger;
+
+        console.log("loading");
+
+        res.text().then((val) => {
+          // 触发右侧content事件
+          contentRef?.current.childMethod(val);
+        });
+      });
+    }
+  };
 
   return (
     <>
@@ -103,16 +82,34 @@ function Blog() {
             </Radio.Group>
           </div>
           <LeftMenu
-            items={menuItems}
+            folderList={menuItems}
+            menuChange={menuChange}
             setActiveMenuKey={setActiveMenuKey}
           ></LeftMenu>
         </div>
         <div className={styles.right}>
-          <BlogList></BlogList>
+          <Content ref={contentRef}></Content>
         </div>
       </div>
     </>
   );
+}
+
+// 此函数在构建时被调用
+export async function getStaticProps() {
+  // 调用外部 API 获取博文列表
+  const path = require("path");
+
+  // 获取整体文件的结构
+  const lists = await getFileTree(
+    path.join(getConfig().publicRuntimeConfig.PROJECT_ROOT, "/public/md")
+  );
+
+  return {
+    props: {
+      lists: JSON.stringify(lists),
+    },
+  };
 }
 
 export default Blog;
