@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 20px 0 20px;
+  padding: 20px;
+  background: white;
+  height: 100%;
+  border-radius: 10px;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  height: calc(100% - 40px);
+  position: relative;
+}
+.title {
+  margin: 0 0 1.3rem;
+  font-size: 2.667rem;
+  font-weight: 600;
+  line-height: 1.31;
+  color:  #252933;;
+}
+
+.step {
+  position: fixed;
+  right: 80px;
+  top: 120px;
+}

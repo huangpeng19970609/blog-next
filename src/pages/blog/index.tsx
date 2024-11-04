@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-11-03 22:45:53
+ * @LastEditTime: 2024-11-04 23:31:01
  * @Description: 博客菜单
  */
 import LeftMenu from "@/components/LeftMenu";
@@ -13,6 +13,7 @@ import getConfig from "next/config";
 import { getFileTree, IFolder } from "@/utils/node";
 import { commonFetch } from "@/fetch";
 import { MenuInfo } from "@/type/react.type";
+import { openNotification } from "@/utils/message";
 
 type TabPosition = "left" | "right" | "top" | "bottom";
 
@@ -40,11 +41,7 @@ function Blog(props) {
 
   // menuActive => rightPanel的内容
   useEffect(() => {
-    if (activeMenuKey === "JavaScript") {
-      messageApi.success("进入" + activeMenuKey);
-      return;
-    }
-    messageApi.error("目前不支持" + activeMenuKey);
+    openNotification("进入成功", activeMenuKey + "");
   }, [activeMenuKey, messageApi]);
 
   const contentRef = useRef();

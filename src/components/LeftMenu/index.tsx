@@ -1,10 +1,11 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-11-03 20:38:09
+ * @LastEditTime: 2024-11-04 23:40:02
  * @Description: 业务组件 - [博客] 使用的左侧导航栏
  */
 import React, { ReactElement } from "react";
+import styles from "./index.module.scss";
 import {
   AppstoreOutlined,
   MailOutlined,
@@ -55,14 +56,16 @@ function LeftMenu(props: {
   };
 
   return (
-    <Menu
-      onClick={onClick}
-      defaultSelectedKeys={["1"]}
-      defaultOpenKeys={["sub1"]}
-      mode="inline"
-      items={listsTree}
-      inlineIndent={16}
-    />
+    <div className={styles["hp-menu"]}>
+      <Menu
+        onClick={onClick}
+        defaultSelectedKeys={["1"]}
+        defaultOpenKeys={["sub1"]}
+        mode="inline"
+        items={listsTree}
+        inlineIndent={16}
+      />
+    </div>
   );
 }
 

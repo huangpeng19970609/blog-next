@@ -39,3 +39,8 @@ html {
   scrollbar-width: thin;
   scrollbar-color: #eaeaea transparent;
 }
+  .ant-menu-submenu-open {
+    max-height: calc(100vh - 90px - 100px);
+    overflow: hidden;
+    overflow-y: scroll;
+  }
