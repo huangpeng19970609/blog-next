@@ -1,10 +1,10 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2024-11-03 23:05:08
+ * @LastEditTime: 2024-11-07 23:41:36
  * @Description: 这是一个注释
  */
-import React from "react";
+import React, { useRef } from "react";
 import { Editor, Viewer } from "@bytemd/react";
 import zhHans from "bytemd/lib/locales/zh_Hans.json"; // 中文插件
 import gfm from "@bytemd/plugin-gfm"; // 支持GFM
@@ -14,23 +14,6 @@ import frontmatter from "@bytemd/plugin-frontmatter"; // 解析前题
 import mediumZoom from "@bytemd/plugin-medium-zoom"; // 缩放图片
 import "bytemd/dist/index.min.css"; // bytemd基础样式必须引入！！！
 import "juejin-markdown-themes/dist/juejin.min.css"; // 掘金同款样式
-
-// bytemd底层用的是remark、rehype，因此查找rehype插件，这里用到的是 rehype-slug 插件, 该插件能获取到所有标题标签并为其添加id
-import rehypeSlug from "rehype-slug";
-import toc from "remark-extract-toc";
-import markdown from "remark-parse";
-import { unified } from "unified";
-
-const getTocTree = (val: string): TocTree => {
-  try {
-    const processor = unified().use(markdown, { commonmark: true }).use(toc);
-    const node = processor.parse(val);
-    const tree = processor.runSync(node);
-    return tree as unknown as TocTree;
-  } catch (error) {
-    return [];
-  }
-};
 
 interface EditorProps {
   value: string;
@@ -43,8 +26,6 @@ const plugins = [
   mediumZoom(), // 图片缩放
 ];
 const Bytemd: React.FC<EditorProps & { isReadonly?: boolean }> = (props) => {
-  const val = getTocTree(props.value);
-  debugger;
   if (props.isReadonly) {
     return (
       <div className="md-viewer">

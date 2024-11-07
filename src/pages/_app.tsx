@@ -7,6 +7,7 @@
 import Header from "@/components/Header";
 import { AppPropsWithLayout } from "@/next.type.ts";
 import "./global.scss";
+import "./normal.css";
 import styles from "./_app.module.scss";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 

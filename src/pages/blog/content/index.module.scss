@@ -4,12 +4,12 @@
   margin: 20px 20px 0 20px;
   padding: 20px;
   background: white;
-  height: 100%;
   border-radius: 10px;
   box-sizing: border-box;
   overflow-y: scroll;
   height: calc(100% - 40px);
   position: relative;
+  width: 80%;
 }
 .title {
   margin: 0 0 1.3rem;
@@ -19,8 +19,25 @@
   color:  #252933;;
 }
 
-.step {
-  position: fixed;
-  right: 80px;
-  top: 120px;
+.fixed {
+  height: calc(100% - 40px);
+  position: relative;
+  width: 20%;
+  margin: 20px 20px 0 0px;
+  background: white;
+  border-radius: 20px;
+  color: #252933;
+  min-height: calc(100% - 40px);
+  overflow-y: scroll;
+}
+
+.d1 {
+  font-weight: 400;
+
+}
+.d2 {
+
+}
+.d3{ 
+
 }
