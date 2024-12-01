@@ -1,4 +1,7 @@
 import { message } from 'antd';
+import getConfig from "next/config";
+
+const baseUrl = getConfig().publicRuntimeConfig.BASE_URL;
 
 /**
  * API 配置常量
@@ -31,14 +34,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 interface RequestConfig extends RequestInit {
   params?: Record<string, string>;  // URL 查询参数
   timeout?: number;                 // 超时时间
-}
-
-/**
- * 通用请求配置接口，扩展自 RequestConfig
- */
-interface CommonFetchConfig extends RequestConfig {
   responseType?: 'json' | 'text' | 'blob';  // 响应类型
-  data?: any;  // 添加 data 字段用于请求体
 }
 
 /**
@@ -64,46 +60,64 @@ class HttpError extends Error {
   }
 }
 
+/**
+ * 原有的 commonFetch 函数
+ */
+export async function commonFetch<T>(url: string, options: RequestInit = {}) {
+  url = baseUrl + url;
 
-// 修改 request 函数支持不同的响应类型
+  const defaultOptions: RequestInit = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    credentials: "include",
+  };
+
+  const fetchOptions = { ...defaultOptions, ...options };
+
+  try {
+    const response = await fetch(url, fetchOptions);
+    if (!response.ok) {
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`
+      );
+    }
+    return response;
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+}
+
+/**
+ * 新的请求函数
+ */
 async function request<T = any>(
   url: string,
   method: HttpMethod = 'GET',
-  config: CommonFetchConfig = {}
+  config: RequestConfig = {}
 ): Promise<T | null> {
   const {
     params,
     timeout = API_CONFIG.TIMEOUT,
     headers = {},
     responseType = 'json',
-    data,  // 获取请求体数据
     ...restConfig
   } = config;
 
-  // 处理查询参数
   const queryParams = params
     ? `?${new URLSearchParams(params).toString()}`
     : '';
-  const fullUrl = `${url}${queryParams}`; // 移除 API_CONFIG.BASE_URL 前缀，因为 commonFetch 用于直接访问文件
+  const fullUrl = `${url}${queryParams}`;
 
-  // 设置默认 headers，根据 data 类型调整 Content-Type
   const defaultHeaders = {
+    'Content-Type': 'application/json',
     'Authorization': `Bearer ${API_CONFIG.TOKEN}`,
     ...headers,
   };
 
-  // 如果不是 FormData，则设置默认的 Content-Type
-  if (!(data instanceof FormData)) {
-    defaultHeaders['Content-Type'] = 'application/json';
-  }
-
-  // 处理请求体
-  let body = data;
-  if (data && !(data instanceof FormData) && typeof data === 'object') {
-    body = JSON.stringify(data);
-  }
-
-  // 创建 AbortController 用于超时控制
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -112,7 +126,6 @@ async function request<T = any>(
       method,
       headers: defaultHeaders,
       signal: controller.signal,
-      body,  // 添加请求体
       ...restConfig,
     });
 
@@ -127,28 +140,24 @@ async function request<T = any>(
       return null;
     }
 
-    // 根据 responseType 处理响应
-    let data: T;
+    let result: T;
     switch (responseType) {
       case 'text':
-        data = await response.text() as T;
+        result = await response.text() as T;
         break;
       case 'blob':
-        data = await response.blob() as T;
+        result = await response.blob() as T;
         break;
       case 'json':
       default:
-        data = await response.json();
+        result = await response.json();
     }
 
-    return data;
+    return result;
   } catch (error: unknown) {
     if (error instanceof HttpError) {
       message.error(error.message);
-      return null;
-    }
-    
-    if (error instanceof Error) {
+    } else if (error instanceof Error) {
       if (error.name === 'AbortError') {
         message.error(HTTP_MESSAGES.TIMEOUT(timeout));
       } else {
@@ -157,22 +166,17 @@ async function request<T = any>(
     } else {
       message.error(HTTP_MESSAGES.UNKNOWN_ERROR);
     }
-    
     return null;
   }
 }
 
-
-// 修改 http 导出对象以支持请求体
+/**
+ * 导出便捷方法
+ */
 export const http = {
-  get: <T>(url: string, config?: CommonFetchConfig) => 
-    request<T>(url, 'GET', config),
-  post: <T>(url: string, data?: any, config?: CommonFetchConfig) => 
-    request<T>(url, 'POST', { ...config, data }),
-  put: <T>(url: string, data?: any, config?: CommonFetchConfig) => 
-    request<T>(url, 'PUT', { ...config, data }),
-  delete: <T>(url: string, config?: CommonFetchConfig) => 
-    request<T>(url, 'DELETE', config),
-  patch: <T>(url: string, data?: any, config?: CommonFetchConfig) => 
-    request<T>(url, 'PATCH', { ...config, data }),
+  get: <T>(url: string, config?: RequestConfig) => request<T>(url, 'GET', config),
+  post: <T>(url: string, config?: RequestConfig) => request<T>(url, 'POST', config),
+  put: <T>(url: string, config?: RequestConfig) => request<T>(url, 'PUT', config),
+  delete: <T>(url: string, config?: RequestConfig) => request<T>(url, 'DELETE', config),
+  patch: <T>(url: string, config?: RequestConfig) => request<T>(url, 'PATCH', config),
 };

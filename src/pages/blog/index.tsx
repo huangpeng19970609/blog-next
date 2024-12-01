@@ -69,21 +69,18 @@ function Blog(props) {
    */
   const menuChange = (e: MenuInfo) => {
     if (contentRef.current) {
-      // 移除public前缀获取实际文件路径
       const url = e.key.replace(/^public\//, "");
 
-      // 获取文章内容
-      http.get(url, {
-        method: "GET",
-      }).then((res) => {
-        res.text().then((val) => {
+      http.get<string>(url, {
+        responseType: 'text'  // 现在这个配置是合法的
+      }).then((val) => {
+        if (val) {
           const obj = {
-            file: val,                    // markdown文件内容
-            title: url.replace(/^md\//, "") // 文章标题（从路径中提取）
+            file: val,
+            title: url.replace(/^md\//, "")
           };
-          // 更新内容区域
           contentRef?.current.childMethod(obj);
-        });
+        }
       });
     }
   };

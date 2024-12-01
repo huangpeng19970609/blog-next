@@ -12,86 +12,23 @@ import Image from "next/image";
 import { ColorUtils } from "@/utils/css";
 import { debounce, throttle } from "lodash";
 
-const Theme = [
-  {
-    bgColor: "rgb(61, 102, 129)",
-    titleColor: "rgb(213, 222, 221)",
-    fontColor: "white",
-    paddingColor: "rgb(213, 222, 221)",
-  },
-  {
-    bgColor: "rgb(245, 248, 255)",
-    titleColor: "red",
-    fontColor: "black",
-    paddingColor: "red",
-  },
-  {
-    bgColor: "rgb(194, 55, 90)",
-    titleColor: "rgb(210, 210, 210)",
-    fontColor: "white",
-    paddingColor: "rgb(210, 210, 210)",
-  },
-  {
-    bgColor: "rgb(122, 185, 224)",
-    titleColor: "rgb(255, 247, 148)",
-    fontColor: "white",
-    paddingColor: "rgb(255, 247, 148)",
-  },
-  {
-    bgColor: "rgb(1, 90, 98)",
-    titleColor: "rgb(204, 186, 142)",
-    fontColor: "white",
-    paddingColor: "rgb(204, 186, 142)",
-  },
-  {
-    bgColor: "white",
-    titleColor: "rgb(255, 111, 100)",
-    fontColor: "black",
-    paddingColor: "rgb(255, 111, 100)",
-  },
-  {
-    bgColor: "rgb(242, 125, 181)",
-    titleColor: "rgb(102, 255, 222)",
-    fontColor: "white",
-    paddingColor: "rgb(102, 255, 222)",
-  },
-];
+interface SliderProps {
+  list: SlideItem[];
+  themes: ThemeConfig[];
+  onThemeChange?: (theme: ThemeConfig) => void;
+  onSlideChange?: (index: number) => void;
+}
 
-function Slider() {
+function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
   const width = 900;
 
   const height = 500;
 
-  const List = [
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-    {
-      url: "https://s.cn.bing.net/th?id=OHR.BeachHutsSweden_ZH-CN4193150313_1920x1080.webp&qlt=50",
-    },
-  ];
-
-  // 默认显示第一张图片
   const [activeStep, setActiveStep] = useState<number>(0);
 
   const activeStepRef = useRef<number>(0);
 
-  const ImageList = List.map((item, index) => {
+  const ImageList = list.map((item, index) => {
     const isActive = activeStep === index;
 
     const finallyWidth = isActive ? width + 40 : width;
@@ -133,19 +70,17 @@ function Slider() {
   const buttonClick = (index: number) => {
     setActiveStep(index);
     activeStepRef.current = index;
-    // TODO: 变更主题颜色 这里虽然很耦合 以后修改?
 
-    if (Theme[index]) {
-      const themeItem = Theme[index];
-
-      ColorUtils.changeFontColor(themeItem.fontColor);
-      ColorUtils.changeMainColor(themeItem.bgColor);
-      ColorUtils.changePaddingColor(themeItem.paddingColor);
-      ColorUtils.changeTitleColor(themeItem.titleColor);
+    if (themes[index] && onThemeChange) {
+      onThemeChange(themes[index]);
+    }
+    
+    if (onSlideChange) {
+      onSlideChange(index);
     }
   };
 
-  const ButtonList = List.map((item, index) => {
+  const ButtonList = list.map((item, index) => {
     return (
       <div key={index} onClick={() => buttonClick(index)}>
         <div
@@ -170,7 +105,7 @@ function Slider() {
 
       // 向下
       if (deltaY > 0) {
-        if (val + 1 <= List.length - 1) {
+        if (val + 1 <= list.length - 1) {
           setActiveStep(val + 1);
           activeStepRef.current = val + 1;
         }
