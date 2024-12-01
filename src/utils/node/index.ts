@@ -5,7 +5,6 @@
  * @Description: 这是一个注释
  */
 import fs from "fs";
-import { url } from "inspector";
 import getConfig from "next/config";
 import path from "path";
 

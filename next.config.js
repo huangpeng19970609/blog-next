@@ -28,6 +28,14 @@ const nextConfig = {
         changeOrigin: true, // 是否改变请求的 origin  
       },
     },
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://124.223.29.25:8083/:path*'
+      }
+    ];
   }
 };
 
