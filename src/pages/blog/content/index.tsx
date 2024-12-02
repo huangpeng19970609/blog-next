@@ -4,6 +4,7 @@ import {
   HTMLAttributes,
   ReactElement,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import { Divider, Steps } from "antd";
@@ -26,21 +27,47 @@ const getTocTree = (val: string): TocTree => {
   }
 };
 
-function getChildren(children: any[]) {
+function getChildren(children: any[], handleTocClick: (index: number[]) => void) {
   if (children?.length) {
     const lis = children.map((item) => {
       const clazz = "d" + item.depth;
       return (
-        <li className={clazz} key="index">
+        <li 
+          className={clazz} 
+          key={item.value}
+          onClick={(e) => {
+            handleTocClick(item.index)
+          }}
+        >
           {item.value}
-          {getChildren(item.children)}
+          {getChildren(item.children, handleTocClick)}
         </li>
       );
     });
 
-    return <ul> {...lis} </ul>;
+    return <ul> {lis} </ul>;
   }
   return <></>;
+}
+
+function addIndexToTreeArray(array, parentIndex = []) {
+  return array.map((item, index) => {
+    // 创建当前项的索引
+    const currentIndex = [...parentIndex, index];
+    
+    // 复制当前项，避免直接修改原对象
+    const newItem = { ...item };
+    
+    // 添加index属性
+    newItem.index = currentIndex;
+    
+    // 如果存在children，递归处理
+    if (Array.isArray(newItem.children) && newItem.children.length > 0) {
+      newItem.children = addIndexToTreeArray(newItem.children, currentIndex);
+    }
+    
+    return newItem;
+  });
 }
 
 /*
@@ -54,13 +81,44 @@ function Content(props, ref) {
 
   const [doms, setDoms] = useState<ReactElement>();
 
-  const childMethod = (value: string) => {
-    const treeArray = getTocTree(value.file);
+  let treeArray = useRef<any[]>([])
 
-    if (treeArray.length) {
-      const childrenDoms = getChildren(treeArray);
-      debugger;
+  const handleTocClick = (indexArray: number[]) => {
+
+    
+    let current = null
+    for (let index = 0; index < indexArray.length; index++) {
+      current = treeArray.current[indexArray[index]]
+    }
+
+    if (current) {
+      const dom = document.getElementById('md-content')
+      
+      if (dom) {
+        const doms = dom.querySelectorAll('h' + current.depth) || []
+        
+        for (let index = 0; index < doms.length; index++) {
+          if (current.value === doms[index].innerText) {
+            doms[index].scrollIntoView({
+              behavior: 'smooth'
+            })
+          }
+        }
+      }
+    }
+
+    
+  };
+
+  const childMethod = (value: string) => {
+     treeArray.current = addIndexToTreeArray(getTocTree(value.file))
+
+    if (treeArray.current.length) {
+      const childrenDoms = getChildren(treeArray.current, handleTocClick);
       setDoms(childrenDoms);
+    }
+    else {
+      setDoms(<></>)
     }
 
     setValue(value);
@@ -74,7 +132,9 @@ function Content(props, ref) {
       <div className={styles.container}>
         <div className={styles.title}> {value?.title} </div>
         <Divider />
+        <div id="md-content">
         <Bytemd value={value?.file || ""} setValue={setValue} isReadonly />
+        </div>
       </div>
       <div className={styles.fixed}>{doms}</div>
     </>

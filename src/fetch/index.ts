@@ -35,6 +35,7 @@ interface RequestConfig extends RequestInit {
   params?: Record<string, string>;  // URL 查询参数
   timeout?: number;                 // 超时时间
   responseType?: 'json' | 'text' | 'blob';  // 响应类型
+  onUploadProgress?: (progressEvent: ProgressEvent) => void;
 }
 
 /**
@@ -112,9 +113,12 @@ async function request<T = any>(
     : '';
   const fullUrl = `${url}${queryParams}`;
 
+  // 根据 body 类型设置不同的 headers
   const defaultHeaders = {
-    'Content-Type': 'application/json',
     'Authorization': `Bearer ${API_CONFIG.TOKEN}`,
+    ...(!(restConfig.body instanceof FormData) && {
+      'Content-Type': 'application/json',
+    }),
     ...headers,
   };
 
@@ -136,6 +140,13 @@ async function request<T = any>(
         response.status,
         response.statusText
       );
+      console.error('Request failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: fullUrl,
+        method,
+        headers: defaultHeaders,
+      });
       message.error(errorMessage);
       return null;
     }
@@ -155,6 +166,7 @@ async function request<T = any>(
 
     return result;
   } catch (error: unknown) {
+    console.error('Request error:', error);
     if (error instanceof HttpError) {
       message.error(error.message);
     } else if (error instanceof Error) {
@@ -174,9 +186,41 @@ async function request<T = any>(
  * 导出便捷方法
  */
 export const http = {
-  get: <T>(url: string, config?: RequestConfig) => request<T>(url, 'GET', config),
-  post: <T>(url: string, config?: RequestConfig) => request<T>(url, 'POST', config),
-  put: <T>(url: string, config?: RequestConfig) => request<T>(url, 'PUT', config),
-  delete: <T>(url: string, config?: RequestConfig) => request<T>(url, 'DELETE', config),
-  patch: <T>(url: string, config?: RequestConfig) => request<T>(url, 'PATCH', config),
+  get: <T>(url: string, config?: RequestConfig) => 
+    request<T>(url, 'GET', config),
+    
+  post: <T>(url: string, data?: any, config: RequestConfig = {}) => {
+    const requestConfig = { ...config };
+    
+    if (data instanceof FormData) {
+      requestConfig.body = data;
+    } else if (data) {
+      requestConfig.body = JSON.stringify(data);
+    }
+    
+    return request<T>(url, 'POST', requestConfig);
+  },
+  
+  put: <T>(url: string, data?: any, config?: RequestConfig) => {
+    const requestConfig = { ...config };
+    if (data instanceof FormData) {
+      requestConfig.body = data;
+    } else if (data) {
+      requestConfig.body = JSON.stringify(data);
+    }
+    return request<T>(url, 'PUT', requestConfig);
+  },
+    
+  delete: <T>(url: string, config?: RequestConfig) => 
+    request<T>(url, 'DELETE', config),
+    
+  patch: <T>(url: string, data?: any, config?: RequestConfig) => {
+    const requestConfig = { ...config };
+    if (data instanceof FormData) {
+      requestConfig.body = data;
+    } else if (data) {
+      requestConfig.body = JSON.stringify(data);
+    }
+    return request<T>(url, 'PATCH', requestConfig);
+  },
 };
