@@ -21,22 +21,27 @@ const nextConfig = {
     "@ant-design",
     "rc-util", "rc-pagination", "rc-picker", "rc-notification", "rc-tooltip", "rc-tree", "rc-table"],
 
-  devServer: {
-    proxy: {
-      '/': {
-        target: 'localhost:8080/', // 代理目标地址  
-        changeOrigin: true, // 是否改变请求的 origin  
-      },
-    },
-  },
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://124.223.29.25:8083/:path*'
-      }
+        destination: 'http://127.0.0.1:8000/:path*'
+      },
+      // {
+      //   source: '/api/juejin',
+      //   destination: 'https://juejin.cn',
+      // }
     ];
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 const withMDX = require('@next/mdx')({

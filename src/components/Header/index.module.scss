@@ -7,6 +7,8 @@
   height: 90px;
   font-size: 14px;
   padding-left: 20px;
+  justify-content: space-between;
+  padding: 0 20px;
 }
 .font-style {
   font-family: silka_rm, sans-serif;
@@ -31,4 +33,14 @@
   }
   // 或者添加底部边框
   border-bottom: 2px solid #1890ff;
+}
+
+.leftMenu {
+  display: flex;
+  gap: 20px;
+}
+
+.rightMenu {
+  display: flex;
+  align-items: center;
 }

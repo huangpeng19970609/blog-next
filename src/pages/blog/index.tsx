@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import Content from "./content/index";
 import getConfig from "next/config";
 import { getFileTree, IFolder } from "@/utils/node";
-import { http } from "@/fetch";
+import { request } from "@/request";
 import { MenuInfo } from "@/type/react.type";
 import { openNotification } from "@/utils/message";
 
@@ -71,17 +71,19 @@ function Blog(props) {
     if (contentRef.current) {
       const url = e.key.replace(/^public\//, "");
 
-      http.get<string>(url, {
-        responseType: 'text'  // 现在这个配置是合法的
-      }).then((val) => {
-        if (val) {
-          const obj = {
-            file: val,
-            title: url.replace(/^md\//, "")
-          };
-          contentRef?.current.childMethod(obj);
-        }
-      });
+      request
+        .get<string>(url, {
+          responseType: "text",
+        })
+        .then((val) => {
+          if (val) {
+            const obj = {
+              file: val,
+              title: url.replace(/^md\//, ""),
+            };
+            contentRef?.current.childMethod(obj);
+          }
+        });
     }
   };
 
@@ -91,7 +93,7 @@ function Blog(props) {
         {contextHolder}
         <div className={styles.left}>
           {/* <div className={styles.segnent}> */}
-            {/* <Radio.Group onChange={handleModeChange} value={mode}>
+          {/* <Radio.Group onChange={handleModeChange} value={mode}>
               <Radio.Button value="top">Horizontal</Radio.Button>
               <Radio.Button value="left">Vertical</Radio.Button>
             </Radio.Group> */}

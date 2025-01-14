@@ -1,0 +1,5 @@
+1. 这是一个Next.js项目，使用Typescript编写。 Next.js的版本是14.2.5。\
+2. 使用Ant Design 5.19.3。
+3. 使用Bytemd 1.21.0。
+4. 你应该尽量使用尽量多自己使用 @codebase 这个提问命令
+
