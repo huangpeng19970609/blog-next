@@ -27,36 +27,31 @@ import Bytemd from "@/components/BytemdComponent";
 import { COMCOS, request } from "@/request";
 import ArticleList from "@/pages/test/ArticleList";
 import FolderManager from "@/pages/test/FolderManager";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const { Dragger } = Upload;
 const { Sider, Content } = Layout;
 
 export default function FileUpload() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const [value, setValue] = useState<string>("");
 
   // 新增状态
-  const [articles, setArticles] = useState<{ id: number; title: string }[]>([]);
   const [folders, setFolders] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
-  // 获取文章列表
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await request({
-          url: COMCOS.BaseURL + "/articles",
-          method: "GET",
-        });
-        setArticles(response.data);
-      } catch (error) {
-        message.error("获取文章列表失败");
-      }
-    };
-    fetchArticles();
-  }, []);
+    const key = searchParams.get("key");
+    if (key) {
+      setSelectedKey(key);
+    }
+  }, [searchParams]);
 
   // 表格列定义
   const columns = [
@@ -170,6 +165,8 @@ export default function FileUpload() {
 
   const handleMenuClick = (key: string) => {
     setSelectedKey(key);
+    // 记录当前缓存数据
+    router.push(`/test?key=${key}`);
   };
 
   return (
@@ -209,7 +206,7 @@ export default function FileUpload() {
             onAddFolder={() => setIsModalVisible(true)}
           />
         )}
-        {selectedKey === "articles" && <ArticleList articles={articles} />}
+        {selectedKey === "articles" && <ArticleList />}
 
         {selectedKey === "upload" && (
           <div className={styles.uploadContainer}>
