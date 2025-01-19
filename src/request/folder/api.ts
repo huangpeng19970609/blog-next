@@ -1,9 +1,10 @@
 import { request } from "@/request";
 import { COMCOS } from "@/request/index";
 import { message } from "antd";
+import { IArticle, IFolder, IResponse } from "../type";
 
 // 获得初始化文件夹结构数据
-export function getInitFolder() {
+export function getInitFolder(): Promise<IResponse<IFolder>> {
   return request.get(COMCOS.BaseURL + "/folder/1");
 }
 

@@ -24,6 +24,7 @@ export default function Login() {
         const { token, user } = res.data;
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("token", token);
+        message.success("登录成功");
       }
     });
   };
