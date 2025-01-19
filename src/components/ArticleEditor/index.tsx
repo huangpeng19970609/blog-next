@@ -1,6 +1,7 @@
+// 第三次封装 - 业务污染
 import { Button, Input, message, Spin } from "antd";
 import { useEffect, useState } from "react";
-import Bytemd from "@/components/BytemdComponent";
+import BytemdCmp from "./base/index";
 import { COMCOS, request } from "@/request";
 import { createArticle } from "@/request/article/api";
 import styles from "./index.module.scss";
@@ -9,19 +10,37 @@ import { motion } from "framer-motion";
 interface ArticleEditorProps {
   id?: string;
   readonly?: boolean;
+  title?: string;
+  value?: string;
+  onChange?: (value: { title: string; content: string }) => void;
   onSuccess?: () => void;
 }
 
 export default function ArticleEditor({
   id,
   readonly = false,
+  title: propsTitle,
+  value: propsValue,
+  onChange,
   onSuccess,
 }: ArticleEditorProps) {
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
+  const [title, setTitle] = useState<string>(propsTitle || "");
+  const [value, setValue] = useState<string>(propsValue || "");
 
-  // 获取文章详情
+  // 合并两个useEffect为一个，并且监听整个value对象
+  useEffect(() => {
+    debugger;
+
+    if (propsTitle) {
+      setTitle(propsTitle);
+    }
+    if (propsValue) {
+      setValue(propsValue);
+    }
+  }, [propsTitle, propsValue]);
+
+  // 获取文章详情 (  若是传递了id 则代表搜索 )
   useEffect(() => {
     const fetchArticle = async () => {
       if (!id) return;
@@ -34,7 +53,7 @@ export default function ArticleEditor({
         });
 
         setTitle(response.data.title);
-        setContent(response.data.content);
+        setValue(response.data.content);
       } catch (error) {
         message.error("获取文章失败");
       } finally {
@@ -95,15 +114,18 @@ export default function ArticleEditor({
         <Input
           value={title}
           placeholder="请输入标题"
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            const newTitle = e.target.value;
+            setTitle(newTitle);
+          }}
           disabled={readonly}
           className={styles.titleInput}
         />
-        <Bytemd
-          value={content}
-          setValue={setContent}
+        <BytemdCmp
+          value={value}
           onUpload={handleUpload}
           readonly={readonly}
+          isReadonly={readonly}
         />
         {!readonly && (
           <motion.div

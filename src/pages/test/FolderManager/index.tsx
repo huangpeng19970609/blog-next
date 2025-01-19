@@ -9,20 +9,33 @@ import {
   message,
   Divider,
   Breadcrumb,
+  Space,
 } from "antd";
 import {
   FolderAddOutlined,
   FileAddOutlined,
   FolderOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { useEffect } from "react";
-import { getInitFolder, createDocument } from "@/request/folder/api";
+import {
+  getInitFolder,
+  createDocument,
+  getFolderList,
+} from "@/request/folder/api";
 import { CSSProperties } from "react";
 import { motion } from "framer-motion";
-import { createArticle } from "@/request/article/api";
+import { createArticle, deleteArticle } from "@/request/article/api";
 import { IArticle, NODE_TYPE } from "@/request/type";
 import moment from "moment";
+import { useRouter } from "next/router";
+import ArticleEditor from "@/components/ArticleEditor";
+import { deleteFolder } from "@/request/folder/api";
+import styles from "./index.module.scss";
 
 // 添加文件夹接口定义
 interface Folder {
@@ -34,7 +47,7 @@ interface Folder {
 
 export default function FolderManager() {
   // 当前文件夹id
-  const [currentFolderId, setCurrentFolderId] = useState<string>("root");
+  const [currentFolderId, setCurrentFolderId] = useState<number>();
   // 修改 folders 的类型定义
   const [folders, setFolders] = useState<Folder[]>([]);
   // 创建文件夹的标题的弹窗
@@ -47,6 +60,13 @@ export default function FolderManager() {
   >([{ title: "我的空间", id: "root" }]);
 
   const [articles, setArticles] = useState<IArticle[]>([]);
+
+  const [previewArticle, setPreviewArticle] = useState<{
+    visible: boolean;
+    id?: number;
+  }>({
+    visible: false,
+  });
 
   const columns = [
     {
@@ -65,9 +85,30 @@ export default function FolderManager() {
       title: "操作",
       key: "action",
       render: (_, record: IArticle) => (
-        <Button type="link" onClick={() => handleEditArticle(record.id)}>
-          编辑
-        </Button>
+        <Space>
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={() => setPreviewArticle({ visible: true, id: record.id })}
+          >
+            查看
+          </Button>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEditArticle(record.id)}
+          >
+            编辑
+          </Button>
+          <Button
+            type="link"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDeleteArticle(record.id)}
+          >
+            删除
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -78,6 +119,8 @@ export default function FolderManager() {
   // 添加新的状态
   const [isNewFileModalVisible, setIsNewFileModalVisible] = useState(false);
   const [newFileName, setNewFileName] = useState("");
+
+  const router = useRouter();
 
   // 创建文件夹
   const handleAddFolder = async () => {
@@ -114,7 +157,7 @@ export default function FolderManager() {
       return;
     }
 
-    if (!currentFolderId || currentFolderId === "root") {
+    if (!currentFolderId) {
       message.error("请先选择一个文件夹！");
       return;
     }
@@ -140,9 +183,17 @@ export default function FolderManager() {
     }
   };
 
-  const init = async (folderId = "root") => {
+  const init = async (folderId?: string) => {
     try {
-      const res = await getInitFolder(folderId);
+      let res;
+
+      if (!folderId) {
+        folderId = "root";
+
+        res = await getInitFolder();
+      } else {
+        res = await getFolderList({ id: folderId });
+      }
 
       if (res.code === 200) {
         const data = res.data;
@@ -157,7 +208,7 @@ export default function FolderManager() {
 
         setFolders(folder || []);
         setArticles(article || []);
-        setCurrentFolderId(folderId);
+        setCurrentFolderId(res?.data.id as number);
       } else {
         message.error(res.message || "获取文件夹内容失败");
       }
@@ -199,17 +250,56 @@ export default function FolderManager() {
 
   // 修改按钮点击事件
   const handleNewFileClick = () => {
-    if (!currentFolderId || currentFolderId === "root") {
-      message.error("请先选择一个文件夹！");
-      return;
-    }
     setIsNewFileModalVisible(true);
   };
 
-  // 添加处理编辑文章的函数
+  // 添加删除文件夹的处理函数
+  const handleDeleteFolder = async (folderId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // 阻止事件冒泡
+    Modal.confirm({
+      title: "确认删除",
+      content: "确定要删除这个文件夹吗？删除后将无法恢复。",
+      okText: "确认",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          const res = await deleteFolder(folderId);
+          if (res.code === 200) {
+            message.success("删除成功");
+            init(currentFolderId);
+          }
+        } catch (error) {
+          message.error("删除失败");
+        }
+      },
+    });
+  };
+
+  // 添加删除文章的处理函数
+  const handleDeleteArticle = (articleId: number) => {
+    Modal.confirm({
+      title: "确认删除",
+      content: "确定要删除这篇文章吗？删除后将无法恢复。",
+      okText: "确认",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          const res = await deleteArticle(articleId);
+          if (res.code === 200) {
+            message.success("删除成功");
+            init(currentFolderId);
+          }
+        } catch (error) {
+          message.error("删除失败");
+        }
+      },
+    });
+  };
+
+  // 修改编辑文章的处理函数
   const handleEditArticle = (articleId: number) => {
     // 跳转到编辑页面
-    window.location.href = `/article/edit/${articleId}`;
+    router.push(`/article/edit/${articleId}`);
   };
 
   const containerStyle: CSSProperties = {
@@ -292,10 +382,15 @@ export default function FolderManager() {
                       borderRadius: "8px",
                       transition: "all 0.3s",
                       cursor: "pointer",
+                      position: "relative",
                     }}
                     bodyStyle={{ padding: "16px" }}
                     onClick={() => handleFolderClick(folder)}
                   >
+                    <CloseCircleOutlined
+                      className={styles.deleteIcon}
+                      onClick={(e) => handleDeleteFolder(folder.id, e)}
+                    />
                     <FolderOutlined
                       style={{
                         fontSize: 40,
@@ -410,6 +505,19 @@ export default function FolderManager() {
             当前位置: {currentFolderName}
           </div>
         </div>
+      </Modal>
+
+      {/* 添加预览文章的Modal */}
+      <Modal
+        title="文章预览"
+        open={previewArticle.visible}
+        footer={null}
+        onCancel={() => setPreviewArticle({ visible: false })}
+        width={800}
+      >
+        {previewArticle.id && (
+          <ArticleEditor id={previewArticle.id.toString()} readonly />
+        )}
       </Modal>
     </div>
   );

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import Bytemd from "@/components/BytemdComponent";
 import { request } from "@/request";
 import { Spin } from "antd";
 import { useRouter } from "next/router";
-import Content from "@/pages/blog/content";
+import ArticleEditor from "@/components/ArticleEditor";
 
 interface ArticleDetailProps {
   id: number;
@@ -40,5 +39,5 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
     return <Spin />;
   }
 
-  return <Content title={title} value={content} isReadonly={true} />;
+  return <ArticleEditor title={title} value={content} isReadonly={true} />;
 }

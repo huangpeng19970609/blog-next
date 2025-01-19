@@ -11,7 +11,7 @@ import LeftMenu from "@/components/LeftMenu";
 import styles from "./index.module.scss";
 import { MenuProps, message, Radio, RadioChangeEvent } from "antd";
 import { useEffect, useRef, useState } from "react";
-import Content from "./content/index";
+import ArticleEditor from "@/components/ArticleEditor";
 import getConfig from "next/config";
 import { getFileTree, IFolder } from "@/utils/node";
 import { request } from "@/request";
@@ -38,17 +38,18 @@ function Blog(props) {
   // 当前激活的菜单项key
   const [activeMenuKey, setActiveMenuKey] = useState<string>();
 
+  // 添加文章内容状态
+  const [articleContent, setArticleContent] = useState<{
+    content: string;
+    title: string;
+  }>({
+    content: "",
+    title: "",
+  });
+
   useEffect(() => {
     document.body.style.overflow = "auto";
   }, []);
-
-  /**
-   * 处理导航模式切换
-   * @param e - Radio切换事件对象
-   */
-  const handleModeChange = (e: RadioChangeEvent) => {
-    setMode(e.target.value);
-  };
 
   // mode => menus
   useEffect(() => {}, [mode]);
@@ -68,23 +69,19 @@ function Blog(props) {
    * @param e - 菜单点击事件信息
    */
   const menuChange = (e: MenuInfo) => {
-    if (contentRef.current) {
-      const url = e.key.replace(/^public\//, "");
-
-      request
-        .get<string>(url, {
-          responseType: "text",
-        })
-        .then((val) => {
-          if (val) {
-            const obj = {
-              file: val,
-              title: url.replace(/^md\//, ""),
-            };
-            contentRef?.current.childMethod(obj);
-          }
-        });
-    }
+    const url = e.key.replace(/^public\//, "");
+    request
+      .get<string>(url, {
+        responseType: "text",
+      })
+      .then((val) => {
+        if (val) {
+          setArticleContent({
+            content: val,
+            title: url.replace(/^md\//, ""),
+          });
+        }
+      });
   };
 
   return (
@@ -92,12 +89,6 @@ function Blog(props) {
       <div className={styles.container}>
         {contextHolder}
         <div className={styles.left}>
-          {/* <div className={styles.segnent}> */}
-          {/* <Radio.Group onChange={handleModeChange} value={mode}>
-              <Radio.Button value="top">Horizontal</Radio.Button>
-              <Radio.Button value="left">Vertical</Radio.Button>
-            </Radio.Group> */}
-          {/* </div> */}
           <LeftMenu
             folderList={menuItems}
             menuChange={menuChange}
@@ -105,7 +96,12 @@ function Blog(props) {
           ></LeftMenu>
         </div>
         <div className={styles.right}>
-          <Content ref={contentRef}></Content>
+          <ArticleEditor
+            title={articleContent.title}
+            value={articleContent.content}
+            onChange={(newValue) => setArticleContent(newValue)}
+            readonly={true}
+          />
         </div>
       </div>
     </>
