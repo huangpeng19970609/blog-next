@@ -99,7 +99,6 @@ function Blog(props) {
           <ArticleEditor
             title={articleContent.title}
             value={articleContent.content}
-            onChange={(newValue) => setArticleContent(newValue)}
             readonly={true}
           />
         </div>

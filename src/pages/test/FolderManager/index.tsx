@@ -57,7 +57,7 @@ export default function FolderManager() {
   // 添加面包屑导航路径状态
   const [breadcrumbItems, setBreadcrumbItems] = useState<
     { title: string; id: string }[]
-  >([{ title: "我的空间", id: "root" }]);
+  >([{ title: "我的空间", id: "1" }]);
 
   const [articles, setArticles] = useState<IArticle[]>([]);
 
@@ -132,7 +132,7 @@ export default function FolderManager() {
     try {
       const response = await createDocument(newFolderName, currentFolderId);
 
-      if (response.success) {
+      if (response.code === 200) {
         setFolders([
           ...folders,
           { id: Date.now(), name: newFolderName, type: "folder" },
@@ -141,7 +141,7 @@ export default function FolderManager() {
         setIsModalVisible(false);
         message.success("文件夹创建成功");
         // 重新获取文件夹列表
-        init();
+        init(currentFolderId);
       } else {
         message.error(response.message || "创建失败");
       }

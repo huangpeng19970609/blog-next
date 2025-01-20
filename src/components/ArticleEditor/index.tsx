@@ -30,8 +30,6 @@ export default function ArticleEditor({
 
   // 合并两个useEffect为一个，并且监听整个value对象
   useEffect(() => {
-    debugger;
-
     if (propsTitle) {
       setTitle(propsTitle);
     }
@@ -91,7 +89,7 @@ export default function ArticleEditor({
     setLoading(true);
     try {
       await createArticle({
-        content,
+        content: value,
         title,
       });
       message.success("提交成功");
