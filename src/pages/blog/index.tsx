@@ -24,7 +24,7 @@ type TabPosition = "left" | "right" | "top" | "bottom";
  * Blog 组件 - 博客页面主组件
  * @param props - 包含文章目录树结构的属性对象
  */
-function Blog(props) {
+function Blog(props: any) {
   const [messageApi, contextHolder] = message.useMessage();
 
   // 导航模式状态（顶部/左侧）
@@ -32,7 +32,7 @@ function Blog(props) {
 
   // 菜单数据状态，初始化为服务端获取的目录树
   const [menuItems, setMenuItems] = useState<IFolder[]>(
-    JSON.parse(props.lists)
+    props.lists ? JSON.parse(props.lists) : []
   );
 
   // 当前激活的菜单项key
@@ -112,19 +112,27 @@ function Blog(props) {
  * @returns {Promise<{props: {lists: string}}>} 序列化后的文件目录树结构
  */
 export async function getStaticProps() {
-  // 调用外部 API 获取博文列表
   const path = require("path");
 
-  // 获取整体文件的结构
-  const lists = await getFileTree(
-    path.join(getConfig().publicRuntimeConfig.PROJECT_ROOT, "/public/md")
-  );
+  try {
+    // 获取整体文件的结构
+    const lists = await getFileTree(
+      path.join(getConfig().publicRuntimeConfig.PROJECT_ROOT, "/public/md")
+    );
 
-  return {
-    props: {
-      lists: JSON.stringify(lists),
-    },
-  };
+    return {
+      props: {
+        lists: JSON.stringify(lists),
+      },
+    };
+  } catch (error) {
+    console.error("Error in getStaticProps:", error);
+    return {
+      props: {
+        lists: JSON.stringify([]),
+      },
+    };
+  }
 }
 
 export default Blog;

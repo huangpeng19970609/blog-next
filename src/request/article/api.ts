@@ -1,4 +1,5 @@
 import { COMCOS, request } from "@/request";
+import { getFolderList, getInitFolder } from "../folder/api";
 
 export function createArticle({
   content,
@@ -22,9 +23,9 @@ export function createArticle({
   });
 }
 
-export function deleteArticle({ id }: { id: string }) {
+export function deleteArticle(id: string) {
   return request({
-    url: COMCOS.BaseURL + `/article/delete?id=${id}`,
+    url: COMCOS.BaseURL + `/article/${id}`,
     method: "DELETE",
   });
 }
@@ -46,8 +47,8 @@ export function updateArticle({
   title: string;
 }) {
   return request({
-    url: COMCOS.BaseURL + `/article/update?id=${id}`,
-    method: "POST",
+    url: COMCOS.BaseURL + `/article/${id}`,
+    method: "PUT",
     data: { content, title },
   });
 }

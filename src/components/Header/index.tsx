@@ -9,6 +9,7 @@ import styles from "./index.module.scss";
 import { useRouter } from "next/router";
 import { Button } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
+import routes from "@/config/routes";
 
 export default function Header() {
   const router = useRouter();
@@ -24,21 +25,18 @@ export default function Header() {
   return (
     <div className={styles.header}>
       <div className={styles.leftMenu}>
-        <div className={`${styles["font-style"]} ${isActive("/home")}`}>
-          <Link href={"/home"} replace={true}>
-            首页
-          </Link>
-        </div>
-        <div className={`${styles["font-style"]} ${isActive("/blog")}`}>
-          <Link href={"/blog"} replace={true}>
-            博客
-          </Link>
-        </div>
-        <div className={`${styles["font-style"]} ${isActive("/test")}`}>
-          <Link href={"/test"} replace={true}>
-            测试的上传文章
-          </Link>
-        </div>
+        {routes
+          .filter((route) => route.title) // 只显示没有子路由的主路由
+          .map((route) => (
+            <div
+              key={route.path}
+              className={`${styles["font-style"]} ${isActive(route.path)}`}
+            >
+              <Link href={route.path} replace={true}>
+                {route.title}
+              </Link>
+            </div>
+          ))}
       </div>
       <div className={styles.rightMenu}>
         <Button type="primary" icon={<LoginOutlined />} onClick={handleLogin}>

@@ -3,7 +3,7 @@ import { Button, Input, message, Spin } from "antd";
 import { useEffect, useState } from "react";
 import BytemdCmp from "./base/index";
 import { COMCOS, request } from "@/request";
-import { createArticle } from "@/request/article/api";
+import { createArticle, updateArticle } from "@/request/article/api";
 import styles from "./index.module.scss";
 import { motion } from "framer-motion";
 
@@ -87,18 +87,30 @@ export default function ArticleEditor({
     }
 
     setLoading(true);
-    try {
-      await createArticle({
+
+    let res;
+    // 更新文章
+    if (id) {
+      res = await updateArticle({
+        id: id.toString(),
         content: value,
         title,
       });
-      message.success("提交成功");
-      onSuccess?.();
-    } catch (error) {
-      message.error("提交失败");
-    } finally {
-      setLoading(false);
     }
+    // 新建
+    else {
+      res = await createArticle({
+        content: value,
+        title,
+      });
+    }
+
+    message.success("提交成功");
+    onSuccess?.();
+
+    setLoading(false);
+
+    return res;
   };
 
   return (
@@ -124,6 +136,7 @@ export default function ArticleEditor({
           onUpload={handleUpload}
           readonly={readonly}
           isReadonly={readonly}
+          onChange={(value: string) => setValue(value)}
         />
         {!readonly && (
           <motion.div

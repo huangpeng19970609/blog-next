@@ -38,7 +38,7 @@ function LeftMenu(props: {
       label: folder?.name,
     } as MenuItemGroupType;
 
-    if (folder.children) {
+    if (folder && folder.children) {
       result.children = [];
 
       for (let i = 0; i < folder.children.length; i++) {

@@ -108,7 +108,7 @@ function addIndexToTreeArray(array, parentIndex = []) {
 
 interface EditorProps {
   value: string;
-  setValue: any;
+  onChange: (value: string) => void;
   onUpload?: (formData: FormData) => Promise<{
     code: number;
     data: {
@@ -121,78 +121,11 @@ interface EditorProps {
 }
 
 const BytemdEditor: React.FC<EditorProps> = (props) => {
-  if (props.readonly) {
-    return (
-      <div className="md-viewer">
-        <Viewer value={props.value} plugins={plugins} />
-      </div>
-    );
-  }
-
-  const onChange = (v) => {
-    props.setValue(v);
-  };
-
-  return (
-    <>
-      <Editor
-        locale={zhHans}
-        plugins={plugins}
-        value={props.value}
-        onChange={onChange}
-        uploadImages={async (files: File[]) => {
-          try {
-            if (!props.onUpload) {
-              notification.error({
-                message: "未配置图片上传功能",
-              });
-              return [];
-            }
-
-            const results = await Promise.all(
-              files.map(async (file) => {
-                const formData = new FormData();
-                formData.append("file", file);
-                const response = await props.onUpload(formData);
-
-                if (response.code === 200) {
-                  const data = response.data;
-                  return {
-                    title: data.filename,
-                    url: data.url,
-                  };
-                } else {
-                  notification.error({
-                    message: response.message || "图片上传失败",
-                  });
-                  return null;
-                }
-              })
-            );
-
-            return results.filter(Boolean);
-          } catch (error) {
-            notification.error({
-              message: "图片上传出错",
-              description: error.message,
-            });
-            return [];
-          }
-        }}
-      />
-    </>
-  );
-};
-
-function Content(props: any, ref) {
-  const [value, setValue] = useState<string>(props.value);
   const [doms, setDoms] = useState<ReactElement>();
-  let treeArray = useRef<any[]>([]);
+  const treeArray = useRef<any[]>([]);
 
   useEffect(() => {
-    setValue(props.value);
-
-    childMethod(props.value);
+    updateTocTree(props.value);
   }, [props.value]);
 
   const handleTocClick = (indexArray: number[]) => {
@@ -203,10 +136,8 @@ function Content(props: any, ref) {
 
     if (current) {
       const dom = document.getElementById("md-content");
-
       if (dom) {
         const doms = dom.querySelectorAll("h" + current.depth) || [];
-
         for (let index = 0; index < doms.length; index++) {
           if (current.value === doms[index].innerText) {
             doms[index].scrollIntoView({
@@ -218,38 +149,84 @@ function Content(props: any, ref) {
     }
   };
 
-  const childMethod = (value: string) => {
+  const updateTocTree = (value: string) => {
     treeArray.current = addIndexToTreeArray(getTocTree(value));
-
     if (treeArray.current.length) {
       const childrenDoms = getChildren(treeArray.current, handleTocClick);
       setDoms(childrenDoms);
     } else {
       setDoms(<></>);
     }
-
-    setValue(value);
   };
 
-  useImperativeHandle(ref, () => ({
-    childMethod,
-  }));
+  if (props.readonly) {
+    return (
+      <div className="md-viewer">
+        <Viewer value={props.value} plugins={plugins} />
+      </div>
+    );
+  }
+
+  const onChange = (v: string) => {
+    updateTocTree(v);
+    props.onChange(v);
+  };
 
   return (
     <>
       <div className={styles.container}>
         <Divider />
         <div id="md-content">
-          <BytemdEditor
-            value={value}
-            setValue={setValue}
-            readonly={props.readonly}
+          <Editor
+            locale={zhHans}
+            plugins={plugins}
+            value={props.value}
+            onChange={onChange}
+            uploadImages={async (files: File[]) => {
+              try {
+                if (!props.onUpload) {
+                  notification.error({
+                    message: "未配置图片上传功能",
+                  });
+                  return [];
+                }
+
+                const results = await Promise.all(
+                  files.map(async (file) => {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    const response = await props.onUpload(formData);
+
+                    if (response.code === 200) {
+                      const data = response.data;
+                      return {
+                        title: data.filename,
+                        url: data.url,
+                      };
+                    } else {
+                      notification.error({
+                        message: response.message || "图片上传失败",
+                      });
+                      return null;
+                    }
+                  })
+                );
+
+                return results.filter(Boolean);
+              } catch (error) {
+                notification.error({
+                  message: "图片上传出错",
+                  description: error.message,
+                });
+                return [];
+              }
+            }}
           />
         </div>
       </div>
       <div className={styles.fixed}>{doms}</div>
     </>
   );
-}
+};
 
-export default forwardRef(Content);
+export default BytemdEditor;

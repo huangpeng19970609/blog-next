@@ -1,7 +1,12 @@
 import { request } from "@/request";
 import { COMCOS } from "@/request/index";
 import { message } from "antd";
-import { IArticle, IFolder, IResponse } from "../type";
+import {
+  IArticle,
+  IFolder,
+  IResponse,
+  NODE_TYPE,
+} from "../../type/request.type";
 
 // 获得初始化文件夹结构数据
 export function getInitFolder(): Promise<IResponse<IFolder>> {
@@ -30,9 +35,54 @@ export function createDocument(name: string, folderId: string) {
   });
 }
 
-export function deleteFolder({ id }: { id: string }) {
+export function deleteFolder(id: string) {
   return request({
-    url: COMCOS.BaseURL + `/folder/delete?id=${id}`,
+    url: COMCOS.BaseURL + `/folder/${id}`,
     method: "DELETE",
+  });
+}
+
+export function getCurrentFolderDetail(id?: string) {
+  const init = async (folderId?: string) => {
+    try {
+      let res;
+
+      if (!folderId) {
+        res = await getInitFolder();
+      } else {
+        res = await getFolderList({ id: folderId });
+      }
+
+      if (res.code === 200) {
+        const data = res.data;
+
+        const folder = data.children.filter(
+          (item) => item.type === NODE_TYPE.FOLDER
+        );
+
+        const article = data.children.filter(
+          (item) => item.type === NODE_TYPE.ARTICLE
+        );
+
+        return {
+          folder: folder || [],
+          article: article || [],
+          currentFolderId: res?.data.id as number,
+          data: res.data,
+        };
+      }
+    } catch (error) {}
+  };
+  return init(id);
+}
+
+// 编辑文件夹
+export function editFolder(id: string, name: string) {
+  return request({
+    url: COMCOS.BaseURL + `/folder/${id}`,
+    method: "PUT",
+    data: {
+      name,
+    },
   });
 }
