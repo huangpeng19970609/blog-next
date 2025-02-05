@@ -9,7 +9,7 @@
  */
 import LeftMenu from "@/components/LeftMenu";
 import styles from "./index.module.scss";
-import { MenuProps, message, Radio, RadioChangeEvent } from "antd";
+import { Empty, message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import ArticleEditor from "@/components/ArticleEditor";
 import getConfig from "next/config";
@@ -96,11 +96,15 @@ function Blog(props: any) {
           ></LeftMenu>
         </div>
         <div className={styles.right}>
-          <ArticleEditor
-            title={articleContent.title}
-            value={articleContent.content}
-            readonly={true}
-          />
+          {articleContent.title ? (
+            <ArticleEditor
+              title={articleContent.title}
+              value={articleContent.content}
+              readonly={true}
+            />
+          ) : (
+            <Empty description={false} />
+          )}
         </div>
       </div>
     </>

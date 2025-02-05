@@ -10,23 +10,45 @@ import { useRouter } from "next/router";
 import { Button } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
 import routes from "@/config/routes";
+import { useState, useEffect } from "react";
 
 export default function Header() {
   const router = useRouter();
+
+  const [user, setUser] = useState(null);
 
   const isActive = (path: string) => {
     return router.pathname === path ? styles.active : "";
   };
 
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    try {
+      user && setUser(JSON.parse(user));
+    } catch (error) {
+      setUser(null);
+    }
+  }, []);
+
   const handleLogin = () => {
+    if (router.pathname === "/login") {
+      return;
+    }
     router.push("/login");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    router.push("/login");
+    setUser(null);
   };
 
   return (
     <div className={styles.header}>
       <div className={styles.leftMenu}>
         {routes
-          .filter((route) => route.title) // 只显示没有子路由的主路由
+          .filter((route) => route.title && !route.hidden) // 添加 hidden 判断
           .map((route) => (
             <div
               key={route.path}
@@ -39,9 +61,19 @@ export default function Header() {
           ))}
       </div>
       <div className={styles.rightMenu}>
-        <Button type="primary" icon={<LoginOutlined />} onClick={handleLogin}>
-          登录
-        </Button>
+        {user ? (
+          <Button
+            type="primary"
+            icon={<LoginOutlined />}
+            onClick={handleLogout}
+          >
+            退出
+          </Button>
+        ) : (
+          <Button type="primary" icon={<LoginOutlined />} onClick={handleLogin}>
+            登录
+          </Button>
+        )}
       </div>
     </div>
   );

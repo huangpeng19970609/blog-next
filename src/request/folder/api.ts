@@ -1,6 +1,6 @@
 import { request } from "@/request";
 import { COMCOS } from "@/request/index";
-import { message } from "antd";
+import { openNotification } from "@/utils/message";
 import {
   IArticle,
   IFolder,
@@ -25,7 +25,7 @@ export function getFolderList({
 // 创建文档
 export function createDocument(name: string, folderId: string) {
   if (!name) {
-    message.error("请输入文档名称");
+    openNotification("错误提示", "请输入文档名称", "error");
     return;
   }
 

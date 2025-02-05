@@ -1,8 +1,10 @@
-import { Form, Input, Button, message } from "antd";
+import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
 import styles from "./index.module.scss";
 import { COMCOS, request } from "@/request";
+import { useRouter } from "next/router";
+import { openNotification } from "@/utils/message";
 
 interface LoginForm {
   username: string;
@@ -10,6 +12,8 @@ interface LoginForm {
 }
 
 export default function Login() {
+  const router = useRouter();
+
   const onFinish = async (values: LoginForm) => {
     // 登录
     request({
@@ -24,7 +28,9 @@ export default function Login() {
         const { token, user } = res.data;
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("token", token);
-        message.success("登录成功");
+        // 刷新
+        openNotification("登录成功", "欢迎回来", "success");
+        router.reload();
       }
     });
   };

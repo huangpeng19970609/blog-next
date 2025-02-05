@@ -1,11 +1,12 @@
 // 第三次封装 - 业务污染
-import { Button, Input, message, Spin } from "antd";
+import { Button, Input,  Spin, Divider } from "antd";
 import { useEffect, useState } from "react";
-import BytemdCmp from "./base/index";
+import BytemdBaseCmp from "./base/index";
 import { COMCOS, request } from "@/request";
 import { createArticle, updateArticle } from "@/request/article/api";
 import styles from "./index.module.scss";
 import { motion } from "framer-motion";
+import { openNotification } from "@/utils/message";
 
 interface ArticleEditorProps {
   id?: string;
@@ -53,7 +54,7 @@ export default function ArticleEditor({
         setTitle(response.data.title);
         setValue(response.data.content);
       } catch (error) {
-        message.error("获取文章失败");
+        openNotification("获取文章失败", "请稍后再试", "error");
       } finally {
         setLoading(false);
       }
@@ -82,7 +83,7 @@ export default function ArticleEditor({
   // 提交文章
   const handleSubmit = async () => {
     if (!title.trim()) {
-      message.warning("请输入标题");
+      openNotification("请输入标题", "请输入标题", "error");
       return;
     }
 
@@ -105,7 +106,7 @@ export default function ArticleEditor({
       });
     }
 
-    message.success("提交成功");
+    openNotification("提交成功", "提交成功", "success");
     onSuccess?.();
 
     setLoading(false);
@@ -121,17 +122,21 @@ export default function ArticleEditor({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Input
-          value={title}
-          placeholder="请输入标题"
-          onChange={(e) => {
-            const newTitle = e.target.value;
-            setTitle(newTitle);
-          }}
-          disabled={readonly}
-          className={styles.titleInput}
-        />
-        <BytemdCmp
+        {readonly && <h3 className={styles.readonlyTitle}>{title}</h3>}
+
+        {!readonly && (
+          <Input
+            value={title}
+            placeholder="请输入标题"
+            onChange={(e) => {
+              const newTitle = e.target.value;
+              setTitle(newTitle);
+            }}
+            className={styles.titleInput}
+          />
+        )}
+        <Divider />
+        <BytemdBaseCmp
           value={value}
           onUpload={handleUpload}
           readonly={readonly}

@@ -11,17 +11,36 @@ import Slider from "@/plugin/slider";
 import { message } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { throttle } from "lodash";
-import { homePageConfig } from "@/config/home-page";
+import { homePageConfig, SlideItem } from "@/config/home-page";
 import { ColorUtils } from "@/utils/css";
-import { Button } from 'antd';
-import { RightOutlined } from '@ant-design/icons';
+import { Button } from "antd";
+import { RightOutlined } from "@ant-design/icons";
+import { getCurrentFolderDetail } from "@/request/folder/api";
+import { useRouter } from "next/router";
 
 function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   const [, contextHolder] = message.useMessage();
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const [slides, setSlides] = useState<SlideItem[]>([]);
+
+  const router = useRouter();
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
+
+    getCurrentFolderDetail().then((res) => {
+      const lists =
+        res &&
+        res.article.map((item, index) => ({
+          id: item.id + "",
+          url: "/images/home/" + (index + 1) + ".jpg",
+          title: item.name,
+          description: item.content.slice(0, 15),
+        }));
+
+      setSlides(lists || []);
+    });
   }, []);
 
   const handleThemeChange = useCallback((theme: ThemeConfig) => {
@@ -29,44 +48,53 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
     ColorUtils.changeMainColor(theme.bgColor);
     ColorUtils.changePaddingColor(theme.paddingColor);
     ColorUtils.changeTitleColor(theme.titleColor);
+    document.documentElement.style.setProperty(
+      "--button-color",
+      theme.titleColor
+    );
   }, []);
 
   const handleSlideChange = useCallback((index: number) => {
-    debugger;
     setActiveIndex(index);
   }, []);
+
+  const handleGoToArticle = () => {
+    const id = slides[activeIndex]?.id;
+    if (id) {
+      router.push(`/daily?articleId=${id}`);
+    }
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.padding}></div>
       <div className={styles.left}>
-        <div className={styles.title}>
-          {homePageConfig.slides[activeIndex].title}
-        </div>
-        <div className={styles.content}>
-          {homePageConfig.slides[activeIndex].description}
-        </div>
-        <Button 
-          type="primary" 
+        <div className={styles.title}>{slides[activeIndex]?.title}</div>
+        <div className={styles.content}>{slides[activeIndex]?.description}</div>
+        <Button
+          onClick={handleGoToArticle}
+          type="primary"
           icon={<RightOutlined />}
           size="large"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 24px',
-            height: 'auto',
-            fontSize: '16px',
-            borderRadius: '24px',
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px 24px",
+            height: "auto",
+            fontSize: "16px",
+            borderRadius: "24px",
+            borderColor: "var(--button-color)",
+            color: "var(--button-color)",
           }}
-          ghost  // 添加 ghost 属性使按钮透明
+          ghost
         >
           查看详情
         </Button>
       </div>
       <div className={styles.right}>
-        <Slider 
-          list={homePageConfig.slides} 
+        <Slider
+          list={slides}
           themes={homePageConfig.themes}
           onThemeChange={handleThemeChange}
           onSlideChange={handleSlideChange}

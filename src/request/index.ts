@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { message } from "antd";
 import { useRouter } from "next/navigation";
+import { openNotification } from "@/utils/message";
 
 enum COMCOS {
   BaseURL = "/api",
@@ -74,7 +74,7 @@ instance.interceptors.response.use(
       }
     }
 
-    message.error(errorMessage);
+    openNotification("错误提示", errorMessage, "error");
     return Promise.reject(error);
   }
 );

@@ -6,7 +6,6 @@ import {
   Col,
   Modal,
   Input,
-  message,
   Divider,
   Breadcrumb,
   Space,
@@ -38,6 +37,7 @@ import { useRouter } from "next/router";
 import ArticleEditor from "@/components/ArticleEditor";
 import { deleteFolder } from "@/request/folder/api";
 import styles from "./index.module.scss";
+import { openNotification } from "@/utils/message";
 
 // 添加文件夹接口定义
 interface Folder {
@@ -144,7 +144,7 @@ export default function FolderManager() {
   // 创建文件夹
   const handleAddFolder = async () => {
     if (!newFolderName.trim()) {
-      message.error("文件夹名称不能为空！");
+      openNotification("文件夹名称不能为空！", "请输入文件夹名称", "error");
       return;
     }
 
@@ -158,26 +158,26 @@ export default function FolderManager() {
         ]);
         setNewFolderName("");
         setIsModalVisible(false);
-        message.success("文件夹创建成功");
+        openNotification("文件夹创建成功", "文件夹创建成功", "success");
         // 重新获取文件夹列表
         init(currentFolderId);
       } else {
-        message.error(response.message || "创建失败");
+        openNotification(response.message || "创建失败", "请稍后再试", "error");
       }
     } catch (error) {
-      message.error("创建文件夹失败，请重试");
+      openNotification("创建文件夹失败", "请稍后再试", "error");
     }
   };
 
   // 创建文件
   const handleAddFile = async () => {
     if (!newFileName.trim()) {
-      message.error("文件名称不能为空！");
+      openNotification("错误提示", "文件名称不能为空！", "error");
       return;
     }
 
     if (!currentFolderId) {
-      message.error("请先选择一个文件夹！");
+      openNotification("错误提示", "请先选择一个文件夹！", "error");
       return;
     }
 
@@ -191,14 +191,14 @@ export default function FolderManager() {
       if (response.code === 200) {
         setNewFileName("");
         setIsNewFileModalVisible(false);
-        message.success("文件创建成功");
+        openNotification("创建成功", "文件创建成功", "success");
         // 重新获取文件列表
         init();
       } else {
-        message.error(response.message || "创建失败");
+        openNotification("错误提示", response.message || "创建失败", "error");
       }
     } catch (error) {
-      message.error("创建文件失败，请重试");
+      openNotification("错误提示", "创建文件失败，请重试", "error");
     }
   };
 
@@ -260,11 +260,11 @@ export default function FolderManager() {
         try {
           const res = await deleteFolder(folderId);
           if (res.code === 200) {
-            message.success("删除成功");
+            openNotification("删除成功", "文件夹已成功删除", "success");
             init(currentFolderId);
           }
         } catch (error) {
-          message.error("删除失败");
+          openNotification("错误提示", "删除失败", "error");
         }
       },
     });
@@ -281,11 +281,11 @@ export default function FolderManager() {
         try {
           const res = await deleteArticle(articleId);
           if (res.code === 200) {
-            message.success("删除成功");
+            openNotification("删除成功", "文章已成功删除", "success");
             init(currentFolderId);
           }
         } catch (error) {
-          message.error("删除失败");
+          openNotification("错误提示", "删除失败", "error");
         }
       },
     });
@@ -309,7 +309,7 @@ export default function FolderManager() {
   // 添加编辑文件夹的处理函数
   const handleEditFolder = async () => {
     if (!editingFolder.name?.trim()) {
-      message.error("文件夹名称不能为空！");
+      openNotification("错误提示", "文件夹名称不能为空！", "error");
       return;
     }
 
@@ -319,15 +319,15 @@ export default function FolderManager() {
         editingFolder.name
       );
       if (response.code === 200) {
-        message.success("文件夹修改成功");
+        openNotification("修改成功", "文件夹修改成功", "success");
         setEditingFolder({ visible: false });
         // 重新获取文件夹列表
         init(currentFolderId?.toString());
       } else {
-        message.error(response.message || "修改失败");
+        openNotification("错误提示", response.message || "修改失败", "error");
       }
     } catch (error) {
-      message.error("修改文件夹失败，请重试");
+      openNotification("错误提示", "修改文件夹失败，请重试", "error");
     }
   };
 

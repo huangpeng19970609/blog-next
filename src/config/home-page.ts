@@ -6,6 +6,7 @@ export interface ThemeConfig {
 }
 
 export interface SlideItem {
+  id: string;
   url: string;
   title?: string;
   description?: string;
@@ -56,42 +57,4 @@ export const homePageConfig = {
       paddingColor: "rgb(102, 255, 222)",
     },
   ] as ThemeConfig[],
-  
-  slides: [
-    {
-      url: "/images/home/1.jpg",
-      title: "自然风光",
-      description: "壮丽的山川河流"
-    },
-    {
-      url: "/images/home/2.jpg",
-      title: "城市风貌",
-      description: "现代都市的魅力"
-    },
-    {
-      url: "/images/home/3.jpg",
-      title: "文化遗产",
-      description: "传统与现代的交融"
-    },
-    {
-      url: "/images/home/4.jpg",
-      title: "人文景观",
-      description: "多彩的人文风情"
-    },
-    {
-      url: "/images/home/5.jpg",
-      title: "艺术创作",
-      description: "独特的艺术表现"
-    },
-    {
-      url: "/images/home/6.jpg",
-      title: "科技创新",
-      description: "未来科技展望"
-    },
-    {
-      url: "/images/home/7.jpg",
-      title: "生活方式",
-      description: "现代生活的多样性"
-    }
-  ] as SlideItem[]
 };

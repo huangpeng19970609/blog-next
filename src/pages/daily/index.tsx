@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { Tabs, Breadcrumb, message, Card, Spin, Empty, Button } from "antd";
+import { Tabs, Breadcrumb,  Card, Spin, Empty, Button } from "antd";
 import {
   ClockCircleOutlined,
   CalendarOutlined,
   ArrowLeftOutlined,
+  FolderOutlined,
 } from "@ant-design/icons";
 import type { TabsProps } from "antd";
 import { getCurrentFolderDetail } from "@/request/folder/api";
 import { IFolder, IArticle, NODE_TYPE } from "@/type/request.type";
 import styles from "./index.module.scss";
 import { useRouter } from "next/router";
+import ArticleEditor from "@/components/ArticleEditor";
+import { openNotification } from "@/utils/message";
 
 function Daily() {
   const [currentFolderId, setCurrentFolderId] = useState<number | null>(null);
@@ -17,6 +20,7 @@ function Daily() {
   const [folderHistory, setFolderHistory] = useState<IFolder[]>([]);
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState<IArticle[]>([]);
+  const [selectedArticle, setSelectedArticle] = useState<IArticle | null>(null);
   const router = useRouter();
 
   const fetchFolderDetail = async (folderId?: string) => {
@@ -52,7 +56,7 @@ function Daily() {
         }
       }
     } catch (error) {
-      message.error("获取文件夹详情失败");
+      openNotification("获取文件夹详情失败", "请稍后再试", "error");
     } finally {
       setLoading(false);
     }
@@ -63,8 +67,18 @@ function Daily() {
     if (key === currentFolderId?.toString()) {
       return;
     }
+    // 重置选中的文章
+    setSelectedArticle(null);
     // 直接调用 fetchFolderDetail
     fetchFolderDetail(key);
+  };
+
+  const handleArticleClick = (article: IArticle) => {
+    setSelectedArticle(article);
+  };
+
+  const handleBackToList = () => {
+    setSelectedArticle(null);
   };
 
   const handleBack = () => {
@@ -93,27 +107,94 @@ function Daily() {
     });
   };
 
-  const items: TabsProps["items"] = folderList.map((folder) => ({
+  const items: TabsProps["items"] = folderList.map((folder, index) => ({
     key: folder.id.toString(),
-    label: folder.name,
+    label: (
+      <div className={styles.tabItem}>
+        <FolderOutlined />
+        <span className={styles.tabIndex}>
+          {(index + 1).toString().padStart(2, "0")}
+        </span>
+        <span className={styles.tabName}>{folder.name}</span>
+      </div>
+    ),
   }));
 
   if (currentFolderId) {
     items.unshift({
       key: currentFolderId?.toString() || "",
-      label: "默认",
+      label: (
+        <div className={styles.tabItem}>
+          <FolderOutlined />
+          <span className={styles.tabIndex}>00</span>
+          <span className={styles.tabName}>默认</span>
+        </div>
+      ),
     });
   }
 
+  // 生成面包屑项
+  const breadcrumbItems = [
+    {
+      title: "根目录",
+      onClick: () => {
+        setSelectedArticle(null);
+        fetchFolderDetail();
+      },
+    },
+    ...folderHistory.map((folder) => ({
+      title: folder.name,
+      onClick: () => {
+        setSelectedArticle(null);
+        fetchFolderDetail(folder.id.toString());
+      },
+    })),
+  ];
+
   // 组件初始化时获取根目录内容
   useEffect(() => {
-    fetchFolderDetail();
-  }, []);
+    const init = async () => {
+      const { articleId } = router.query;
+
+      // 等待 fetchFolderDetail 完成
+      await fetchFolderDetail();
+
+      // 确保 articleId 存在且为字符串类型
+      if (typeof articleId === "string") {
+        // 重新获取最新的 articles 状态
+        const response = await getCurrentFolderDetail();
+        if (response && response.article) {
+          const targetArticle = response.article.find(
+            (article) => article.id.toString() === articleId
+          );
+          if (targetArticle) {
+            setSelectedArticle(targetArticle);
+          }
+        }
+      }
+    };
+
+    init();
+  }, [router.query]);
 
   return (
     <div className={styles.dailyContainer}>
       {/* 左侧面板 */}
       <div className={styles.leftPanel}>
+        {/* 面包屑导航 */}
+        <div className={styles.breadcrumbWrapper}>
+          <Breadcrumb
+            items={breadcrumbItems.map((item, index) => ({
+              title: (
+                <span onClick={item.onClick} className={styles.breadcrumbItem}>
+                  {item.title}
+                </span>
+              ),
+            }))}
+            separator=">"
+          />
+        </div>
+
         {/* 返回按钮 */}
         <div className={styles.backButton}>
           <Button
@@ -126,63 +207,72 @@ function Daily() {
         </div>
         {/* tabs标签 */}
         <div className={styles.tabsWrapper}>
-          <Tabs
-            loading={loading}
-            activeKey={currentFolderId?.toString()}
-            tabPosition="left"
-            items={items}
-            onChange={handleTabChange}
-          />
+          <Spin spinning={loading}>
+            <Tabs
+              activeKey={currentFolderId?.toString()}
+              tabPosition="left"
+              items={items}
+              onChange={handleTabChange}
+            />
+          </Spin>
         </div>
       </div>
 
       {/* 右侧内容区 */}
       <div className={styles.rightPanel}>
-        <div className={styles.articleList}>
-          {loading ? (
-            <div className={styles.loadingWrapper}>
-              <Spin size="large" />
+        {/* 文章详情 */}
+        {selectedArticle ? (
+          <Spin spinning={loading}>
+            <div className={styles.articleEditorWrapper}>
+              <div className={styles.backToListButton}>
+                <Button onClick={handleBackToList} icon={<ArrowLeftOutlined />}>
+                  返回文章列表
+                </Button>
+              </div>
+              <ArticleEditor
+                title={selectedArticle.name}
+                value={selectedArticle.content}
+                readonly={true}
+              />
             </div>
-          ) : articles.length === 0 ? (
-            <Empty description="暂无文章" />
-          ) : (
-            articles.map((article, index) => (
-              <Card
-                key={article.id}
-                hoverable
-                className={styles.articleCard}
-                onClick={() => router.push(`/article/${article.id}`)}
-              >
-                <div className={styles.articleContent}>
-                  <div className={styles.articleInfo}>
-                    <div className={styles.articleIndex}>
-                      <span className={styles.number}>
-                        {(index + 1).toString().padStart(2, "0")}
+          </Spin>
+        ) : (
+          // 文章列表
+          <div className={styles.articleListWrapper}>
+            {loading ? (
+              <div className={styles.loadingWrapper}>
+                <Spin size="large" tip="加载中..." />
+              </div>
+            ) : articles.length === 0 ? (
+              <Empty description="暂无文章" />
+            ) : (
+              articles.map((article, index) => (
+                <div
+                  key={article.id}
+                  className={styles.articleItem}
+                  onClick={() => handleArticleClick(article)}
+                >
+                  <div className={styles.articleIndex}>
+                    <span>{(index + 1).toString().padStart(2, "0")}</span>
+                  </div>
+                  <div className={styles.articleMain}>
+                    <div className={styles.articleTitle}>{article.name}</div>
+                    <div className={styles.articleMeta}>
+                      <span>
+                        <CalendarOutlined />
+                        {new Date(article.created_at).toLocaleDateString()}
+                      </span>
+                      <span>
+                        <ClockCircleOutlined />
+                        {new Date(article.created_at).toLocaleTimeString()}
                       </span>
                     </div>
-                    <div>
-                      <div className={styles.articleTitle}>{article.name}</div>
-                      <div className={styles.articleContent}>
-                        {article.content}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.articleMeta}>
-                    <span className={styles.timeInfo}>
-                      <CalendarOutlined className={styles.icon} />
-                      {new Date(article.created_at).toLocaleDateString()}
-                    </span>
-                    <span className={styles.timeInfo}>
-                      <ClockCircleOutlined className={styles.icon} />
-                      {new Date(article.created_at).toLocaleTimeString()}
-                    </span>
                   </div>
                 </div>
-              </Card>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

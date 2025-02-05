@@ -22,6 +22,7 @@ import gemoji from "@bytemd/plugin-gemoji"; // 支持 emoji
 import math from "@bytemd/plugin-math"; // 支持数学公式
 import mermaid from "@bytemd/plugin-mermaid"; // 支持流程图
 import "katex/dist/katex.css"; // 数学公式样式
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 
 // bytemd底层用的是remark、rehype，因此查找rehype插件，这里用到的是 rehype-slug 插件, 该插件能获取到所有标题标签并为其添加id
 import rehypeSlug from "rehype-slug";
@@ -62,9 +63,10 @@ function getChildren(
       const clazz = "d" + item.depth;
       return (
         <li
-          className={clazz}
+          className={styles[clazz]}
           key={item.value}
           onClick={(e) => {
+            e.stopPropagation();
             handleTocClick(item.index);
           }}
         >
@@ -123,26 +125,43 @@ interface EditorProps {
 const BytemdEditor: React.FC<EditorProps> = (props) => {
   const [doms, setDoms] = useState<ReactElement>();
   const treeArray = useRef<any[]>([]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     updateTocTree(props.value);
   }, [props.value]);
 
+  // indexarray 代表着要遍历的过程与方向
   const handleTocClick = (indexArray: number[]) => {
     let current = null;
+
+    // 遍历indexArray数组
     for (let index = 0; index < indexArray.length; index++) {
-      current = treeArray.current[indexArray[index]];
+      if (index === 0) {
+        current = treeArray.current[indexArray[index]];
+      }
+      // 则递归自己
+      else {
+        current = current!.children[indexArray[index]];
+      }
     }
 
     if (current) {
       const dom = document.getElementById("md-content");
       if (dom) {
         const doms = dom.querySelectorAll("h" + current.depth) || [];
+
         for (let index = 0; index < doms.length; index++) {
           if (current.value === doms[index].innerText) {
-            doms[index].scrollIntoView({
+            const currentDom = doms[index];
+
+            console.log(currentDom);
+
+            currentDom.scrollIntoView({
               behavior: "smooth",
             });
+
+            break;
           }
         }
       }
@@ -161,8 +180,19 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
 
   if (props.readonly) {
     return (
-      <div className="md-viewer">
+      <div className={styles.mdViewer} id="md-content">
         <Viewer value={props.value} plugins={plugins} />
+        <div
+          className={`${styles.fixed} ${isCollapsed ? styles.collapsed : ""}`}
+        >
+          <div
+            className={styles["collapse-btn"]}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            {isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          </div>
+          {!isCollapsed && doms}
+        </div>
       </div>
     );
   }
@@ -174,7 +204,7 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
 
   return (
     <>
-      <div className={styles.container}>
+      <div className={styles["article-base-container"]}>
         <Divider />
         <div id="md-content">
           <Editor
@@ -224,7 +254,15 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
           />
         </div>
       </div>
-      <div className={styles.fixed}>{doms}</div>
+      <div className={`${styles.fixed} ${isCollapsed ? styles.collapsed : ""}`}>
+        <div
+          className={styles["collapse-btn"]}
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          {isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </div>
+        {!isCollapsed && doms}
+      </div>
     </>
   );
 };

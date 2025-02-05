@@ -1,6 +1,5 @@
 import { message, notification } from "antd";
-
-import { SmileOutlined } from "@ant-design/icons";
+import { SmileOutlined, FrownOutlined } from "@ant-design/icons";
 import React from "react";
 
 /*
@@ -11,21 +10,32 @@ import React from "react";
  */
 
 // 创建一个带有样式的 React 元素
-const styledIcon = React.createElement(SmileOutlined, {
-  style: { color: "#108ee9" },
+const SuccessstyledIcon = React.createElement(SmileOutlined, {
+  // 浅绿色
+  style: { color: "green" },
 });
 
-const openNotification = (message: string, str: string) => {
-  notification.open({
+const ErrorstyledIcon = React.createElement(FrownOutlined, {
+  // 浅红色
+  style: { color: "red" },
+});
+
+const config = {
+  showProgress: true,
+  pauseOnHover: true,
+  duration: 2,
+};
+
+const openNotification = (
+  message: string,
+  str: string,
+  type?: "success" | "error"
+) => {
+  notification[type || "open"]({
     message: message,
     description: str,
-    onClick: () => {
-      console.log("Notification Clicked!");
-    },
-    showProgress: true,
-    pauseOnHover: true,
-    icon: styledIcon,
-    duration: 2,
+    icon: type === "error" ? ErrorstyledIcon : SuccessstyledIcon,
+    ...config,
   });
 };
 

@@ -14,6 +14,7 @@ export interface RouteConfig {
   icon?: ReactNode;
   children?: RouteConfig[];
   auth?: boolean;
+  hidden?: boolean;
 }
 
 const routes: RouteConfig[] = [
@@ -31,17 +32,14 @@ const routes: RouteConfig[] = [
   },
   {
     path: "/test",
-    title: "黄鹏",
+    title: "黄鹏的编辑",
     children: [
       {
         path: "/test/folder-manager",
         title: "文件管理",
       },
     ],
-  },
-  {
-    path: "/article/edit/:id",
-    title: "文章编辑",
+    hidden: process.env.NODE_ENV === "production",
   },
 ];
 

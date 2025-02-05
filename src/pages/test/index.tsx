@@ -3,7 +3,7 @@
  * @LastEditors: 黄鹏
  * @Description: 文件上传组件
  */
-import { message, Button, Layout, Table, Modal, Input, List, Menu } from "antd";
+import { Button, Layout, Table, Modal, Input, List, Menu } from "antd";
 import { FolderOutlined, FileTextOutlined } from "@ant-design/icons";
 import styles from "./index.module.scss";
 import { useState, useEffect } from "react";
@@ -11,6 +11,7 @@ import ArticleEditor from "@/components/ArticleEditor";
 import ArticleList from "@/pages/test/ArticleList";
 import FolderManager from "@/pages/test/FolderManager";
 import { useRouter, useSearchParams } from "next/navigation";
+import { openNotification } from "@/utils/message";
 
 const { Sider, Content } = Layout;
 
@@ -76,7 +77,7 @@ export default function FileUpload() {
         {selectedKey === "upload" && (
           <ArticleEditor
             onSuccess={() => {
-              message.success("文章创建成功");
+              openNotification("文章创建成功", "文章创建成功", "success");
               handleMenuClick("articles");
             }}
           />
