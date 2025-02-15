@@ -14,9 +14,10 @@ import { useEffect, useRef, useState } from "react";
 import ArticleEditor from "@/components/ArticleEditor";
 import getConfig from "next/config";
 import { getFileTree, IFolder } from "@/utils/node";
-import { request } from "@/request";
+import { request, staticRequest } from "@/request";
 import { MenuInfo } from "@/type/react.type";
 import { openNotification } from "@/utils/message";
+import { getLastArticle, setLastArticle } from "@/utils/cookie";
 
 type TabPosition = "left" | "right" | "top" | "bottom";
 
@@ -38,6 +39,9 @@ function Blog(props: any) {
   // 当前激活的菜单项key
   const [activeMenuKey, setActiveMenuKey] = useState<string>();
 
+  // 保存当前展开的节点
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+
   // 添加文章内容状态
   const [articleContent, setArticleContent] = useState<{
     content: string;
@@ -47,22 +51,54 @@ function Blog(props: any) {
     title: "",
   });
 
-  useEffect(() => {
-    document.body.style.overflow = "auto";
-  }, []);
+  // 修改 getParentKeys 函数，处理路径前缀问题
+  const getParentKeys = (targetPath: string, folders: IFolder[]): string[] => {
+    const keys: string[] = [];
 
-  // mode => menus
-  useEffect(() => {}, [mode]);
+    // 确保目标路径有 public/ 前缀
+    const fullTargetPath = targetPath.startsWith("public/")
+      ? targetPath
+      : `public/${targetPath}`;
+    console.log("Full target path:", fullTargetPath); // 添加日志
 
-  // menuActive => rightPanel的内容
-  useEffect(() => {
-    openNotification("进入成功", activeMenuKey + "");
-  }, [activeMenuKey, messageApi]);
+    const findPath = (path: string, items: IFolder[]) => {
+      for (const item of items) {
+        // 检查当前项的路径是否是目标路径的父路径
+        if (path.startsWith(item.path + "/") && item.path !== path) {
+          console.log("Found parent:", item.path); // 添加日志
+          keys.push(item.path);
+          if (item.children) {
+            findPath(path, item.children);
+          }
+        }
+      }
+    };
 
-  /**
-   * 内容展示区域的引用
-   */
-  const contentRef = useRef();
+    findPath(fullTargetPath, folders);
+    return keys;
+  };
+
+  // 加载文章的通用函数
+  const loadArticle = (url: string) => {
+    // 计算需要展开的节点
+    const parentKeys = getParentKeys(url, menuItems);
+
+    // 确保url以'/'开头
+    const requestUrl = url.startsWith("/") ? url : `/${url}`;
+
+    staticRequest({
+      url: requestUrl,
+      method: "GET",
+      responseType: "text",
+    }).then((val) => {
+      if (val) {
+        setArticleContent({
+          content: val,
+          title: url.replace(/^md\//, ""),
+        });
+      }
+    });
+  };
 
   /**
    * 处理菜单项点击事件
@@ -70,44 +106,56 @@ function Blog(props: any) {
    */
   const menuChange = (e: MenuInfo) => {
     const url = e.key.replace(/^public\//, "");
-    request
-      .get<string>(url, {
-        responseType: "text",
-      })
-      .then((val) => {
-        if (val) {
-          setArticleContent({
-            content: val,
-            title: url.replace(/^md\//, ""),
-          });
-        }
-      });
+    console.log("Menu item clicked:", url); // 添加日志
+    // 保存当前文章位置
+    setLastArticle(url);
+    loadArticle(url);
   };
 
+  // 修改初始化逻辑，确保 menuItems 加载完成后再计算展开路径
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+
+    // 检查是否有保存的文章位置
+    const savedArticle = getLastArticle();
+    const targetArticle = savedArticle || "md/面试题/手写题.md";
+
+    // 确保 menuItems 已加载
+    if (menuItems.length > 0) {
+      console.log("Menu structure:", JSON.stringify(menuItems, null, 2)); // 添加菜单结构日志
+      // 计算需要展开的节点
+      const parentKeys = getParentKeys(targetArticle, menuItems);
+      console.log("Parent keys calculated:", parentKeys);
+      console.log("Target article:", targetArticle);
+      setOpenKeys(parentKeys);
+      // 加载文章
+      loadArticle(targetArticle);
+    }
+  }, [menuItems]);
   return (
-    <>
-      <div className={styles.container}>
-        {contextHolder}
-        <div className={styles.left}>
-          <LeftMenu
-            folderList={menuItems}
-            menuChange={menuChange}
-            setActiveMenuKey={setActiveMenuKey}
-          ></LeftMenu>
-        </div>
-        <div className={styles.right}>
-          {articleContent.title ? (
-            <ArticleEditor
-              title={articleContent.title}
-              value={articleContent.content}
-              readonly={true}
-            />
-          ) : (
-            <Empty description={false} />
-          )}
-        </div>
+    <div className={styles.container}>
+      {contextHolder}
+      <div className={styles.left}>
+        <LeftMenu
+          folderList={menuItems}
+          menuChange={menuChange}
+          setActiveMenuKey={setActiveMenuKey}
+          defaultSelectedKey={activeMenuKey}
+          defaultOpenKeys={openKeys}
+        />
       </div>
-    </>
+      <div className={styles.right}>
+        {articleContent.content ? (
+          <ArticleEditor
+            title={articleContent.title}
+            value={articleContent.content}
+            readonly={true}
+          />
+        ) : (
+          <Empty description={false} />
+        )}
+      </div>
+    </div>
   );
 }
 

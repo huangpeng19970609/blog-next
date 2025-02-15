@@ -15,6 +15,12 @@ export interface SlideItem {
 export const homePageConfig = {
   themes: [
     {
+      bgColor: "rgb(122, 185, 224)",
+      titleColor: "rgb(255, 247, 148)",
+      fontColor: "white",
+      paddingColor: "rgb(255, 247, 148)",
+    },
+    {
       bgColor: "rgb(61, 102, 129)",
       titleColor: "rgb(213, 222, 221)",
       fontColor: "white",
@@ -31,12 +37,6 @@ export const homePageConfig = {
       titleColor: "rgb(210, 210, 210)",
       fontColor: "white",
       paddingColor: "rgb(210, 210, 210)",
-    },
-    {
-      bgColor: "rgb(122, 185, 224)",
-      titleColor: "rgb(255, 247, 148)",
-      fontColor: "white",
-      paddingColor: "rgb(255, 247, 148)",
     },
     {
       bgColor: "rgb(1, 90, 98)",

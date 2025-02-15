@@ -17,6 +17,8 @@ export default function Header() {
 
   const [user, setUser] = useState(null);
 
+  const [finnalyRoutes, setFinnalyRoutes] = useState([]);
+
   const isActive = (path: string) => {
     return router.pathname === path ? styles.active : "";
   };
@@ -28,6 +30,16 @@ export default function Header() {
     } catch (error) {
       setUser(null);
     }
+
+    const finnalyRoutes = routes.filter((route) => {
+      const user = localStorage.getItem("user");
+      const parsedUser = user ? JSON.parse(user) : null;
+      return (
+        route.title &&
+        (!route.hidden || (route.hidden && parsedUser?.username === "admin"))
+      );
+    });
+    setFinnalyRoutes(finnalyRoutes);
   }, []);
 
   const handleLogin = () => {
@@ -47,18 +59,16 @@ export default function Header() {
   return (
     <div className={styles.header}>
       <div className={styles.leftMenu}>
-        {routes
-          .filter((route) => route.title && !route.hidden) // 添加 hidden 判断
-          .map((route) => (
-            <div
-              key={route.path}
-              className={`${styles["font-style"]} ${isActive(route.path)}`}
-            >
-              <Link href={route.path} replace={true}>
-                {route.title}
-              </Link>
-            </div>
-          ))}
+        {finnalyRoutes.map((route) => (
+          <div
+            key={route.path}
+            className={`${styles["font-style"]} ${isActive(route.path)}`}
+          >
+            <Link href={route.path} replace={true}>
+              {route.title}
+            </Link>
+          </div>
+        ))}
       </div>
       <div className={styles.rightMenu}>
         {user ? (

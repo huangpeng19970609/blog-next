@@ -1,6 +1,27 @@
 import { COMCOS, request } from "@/request";
 import { getFolderList, getInitFolder } from "../folder/api";
+import { ArticleListRequest, ArticleListResponse } from "@/type/request.type";
 
+// 首页-获取最新
+export function getLatestArticle() {
+  return request<ArticleListResponse>({
+    url: COMCOS.BaseURL + `/article/recent`,
+    method: "GET",
+  });
+}
+
+// 获取文章列表
+export function getArticleList(
+  params: ArticleListRequest = { page: 1, pageSize: 10 }
+) {
+  return request<ArticleListResponse>({
+    url: COMCOS.BaseURL + `/article/list`,
+    method: "GET",
+    params,
+  });
+}
+
+// 创建文章
 export function createArticle({
   content,
   title,
@@ -10,8 +31,6 @@ export function createArticle({
   title: string;
   folderId?: string;
 }) {
-  // const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
-
   return request({
     url: COMCOS.BaseURL + `/article/create`,
     method: "POST",
@@ -23,6 +42,7 @@ export function createArticle({
   });
 }
 
+// 删除文章
 export function deleteArticle(id: string) {
   return request({
     url: COMCOS.BaseURL + `/article/${id}`,
@@ -30,6 +50,7 @@ export function deleteArticle(id: string) {
   });
 }
 
+// 获取文章详情
 export function getArticleDetail({ id }: { id: string }) {
   return request({
     url: COMCOS.BaseURL + `/article/detail?id=${id}`,
@@ -37,6 +58,7 @@ export function getArticleDetail({ id }: { id: string }) {
   });
 }
 
+// 更新文章
 export function updateArticle({
   id,
   content,

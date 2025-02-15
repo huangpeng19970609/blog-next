@@ -4,11 +4,10 @@
  * @LastEditTime: 2024-07-28 11:13:19
  */
 
-export default function Home(props: any) {
+export default function Home() {
   return (
     <main>
-      {/* 首页 */}
-      首页11111
+      <h1>欢迎访问我的博客</h1>
     </main>
   );
 }

@@ -4,7 +4,7 @@
  * @LastEditTime: 2024-11-04 23:40:02
  * @Description: 业务组件 - [博客] 使用的左侧导航栏
  */
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import styles from "./index.module.scss";
 import {
   AppstoreOutlined,
@@ -23,8 +23,12 @@ function LeftMenu(props: {
   folderList: IFolder[];
   setActiveMenuKey: ISetState;
   menuChange: any;
+  defaultSelectedKey?: string;
+  defaultOpenKeys?: string[];
 }): ReactElement {
-  const { folderList, setActiveMenuKey } = props;
+  const { folderList, setActiveMenuKey, defaultSelectedKey, defaultOpenKeys } = props;
+
+  const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys || []);
 
   const listsTree = [];
 
@@ -55,12 +59,24 @@ function LeftMenu(props: {
     props.menuChange(e as any);
   };
 
+  const onOpenChange = (keys: string[]) => {
+    setOpenKeys(keys);
+  };
+
+  useEffect(() => {
+    if (defaultOpenKeys && defaultOpenKeys.length > 0) {
+      console.log('Updating openKeys with:', defaultOpenKeys); 
+      setOpenKeys(defaultOpenKeys);
+    }
+  }, [defaultOpenKeys]);
+
   return (
     <div className={styles["hp-menu"]}>
       <Menu
         onClick={onClick}
-        defaultSelectedKeys={["1"]}
-        defaultOpenKeys={["sub1"]}
+        selectedKeys={[defaultSelectedKey || '']}  
+        openKeys={openKeys}
+        onOpenChange={onOpenChange}
         mode="inline"
         items={listsTree}
         inlineIndent={16}

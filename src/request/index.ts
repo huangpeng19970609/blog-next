@@ -1,14 +1,24 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { openNotification } from "@/utils/message";
+import { CONFIG } from "@/config";
 
-enum COMCOS {
-  BaseURL = "/api",
+const COMCOS = {
+  BaseURL: "/api",
+  UploadImagePrefix: "",
+};
+
+// 定义成功响应数据的接口
+interface SuccessResponse<T = any> {
+  code: number;
+  data: T;
+  message: string;
 }
 
 // 创建 axios 实例
 const instance: AxiosInstance = axios.create({
-  baseURL: "", // API 基础路径
+  // BaseURL 放于外部
+  baseURL: "",
   timeout: 15000, // 请求超时时间
 });
 
@@ -16,9 +26,7 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     const token = localStorage.getItem("token");
-
     if (token) {
-      // 只有在 Content-Type 没有被指定时才设置默认值
       const originalContentType =
         config.headers?.["Content-Type"] || "application/json";
 
@@ -40,25 +48,22 @@ instance.interceptors.request.use(
 
 // 响应拦截器
 instance.interceptors.response.use(
-  (response: AxiosResponse) => {
-    // 假设后端返回的数据结构为 { code: number, data: any, message: string }
-    const res = response.data;
-    if (res.code === 200) {
-      return res;
+  <T>(response: AxiosResponse<SuccessResponse<T>>) => {
+    // 忽略前端的封装
+    if (response.data.code === 200) {
+      // 使用后端的返回封装
+      return response.data as T; // 直接返回 data 并且断言类型为 T
     }
-    // 处理业务错误
-    return res;
+    return Promise.reject(response);
   },
   (error) => {
-    // 统一错误处理
     let errorMessage = "网络错误，请稍后重试";
 
     if (error.response) {
       switch (error.response.status) {
         case 401:
           errorMessage = "未登录或登录已过期";
-          // 可以在这里添加跳转到登录页的逻辑
-          window.location.href = "/login";
+          window.location.href = "/login"; // 跳转到登录页
           break;
         case 403:
           errorMessage = "没有权限访问";
@@ -79,4 +84,26 @@ instance.interceptors.response.use(
   }
 );
 
-export { instance as request, COMCOS };
+// 封装 request 方法以支持泛型
+function request<T = any>(config: AxiosRequestConfig): Promise<T> {
+  return instance(config);
+}
+
+// 创建一个新的 axios 实例专门用于静态资源
+const staticInstance: AxiosInstance = axios.create({
+  baseURL: "",
+  timeout: 15000,
+});
+
+// 封装静态资源请求方法
+async function staticRequest<T = any>(config: AxiosRequestConfig): Promise<T> {
+  const res = await staticInstance(config);
+
+  if (res.status === 200) {
+    return res.data as T;
+  }
+
+  return Promise.reject(res);
+}
+
+export { request, staticRequest, COMCOS };

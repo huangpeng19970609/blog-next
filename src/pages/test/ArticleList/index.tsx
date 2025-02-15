@@ -1,20 +1,14 @@
 import { Table, TableProps } from "antd";
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { request } from "@/request";
 import dynamic from "next/dynamic";
+import { Article } from "@/type/request.type";
+import { getArticleList } from "@/request/article/api";
 
 // 动态导入文章详情组件
 const ArticleDetail = dynamic(() => import("../article-detail/[id]"), {
   ssr: false,
 });
-
-export interface Article {
-  id: number;
-  title: string;
-  content?: string;
-  [key: string]: any; // 允许其他属性
-}
 
 export interface ArticleListProps {
   loading?: boolean;
@@ -36,12 +30,18 @@ export default function ArticleList({
   const [selectedArticleId, setSelectedArticleId] = useState<number | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const defaultColumns = [
     {
       title: "序号",
-      dataIndex: "id",
-      key: "id",
+      key: "index",
+      width: 80,
+      render: (_: any, __: any, index: number) => {
+        // 计算实际序号，考虑分页
+        return (currentPage - 1) * 10 + index + 1;
+      },
     },
     {
       title: "标题",
@@ -69,11 +69,19 @@ export default function ArticleList({
 
   useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [currentPage]);
 
   const fetchArticles = async () => {
-    const response = await request.get("/api/article/list");
-    setArticles(response.data);
+    try {
+      const response = await getArticleList({
+        page: currentPage,
+        pageSize: 10,
+      });
+      setArticles(response.data);
+      setTotal(response.total);
+    } catch (error) {
+      console.error("Failed to fetch articles:", error);
+    }
   };
 
   const columns = [...defaultColumns, ...extraColumns, ...actionColumn];
@@ -91,7 +99,11 @@ export default function ArticleList({
           <Table
             columns={columns}
             dataSource={articles}
-            pagination={false}
+            pagination={{
+              current: currentPage,
+              total: total,
+              onChange: (page) => setCurrentPage(page),
+            }}
             rowKey="id"
             loading={loading}
             onRow={(record) => ({

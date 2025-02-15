@@ -27,6 +27,27 @@ interface IArticle {
   created_at: string;
 }
 
+export interface Article {
+  id: number;
+  title: string;
+  content: string;
+  user_id: number;
+  created_at: string;
+}
+
+export interface ArticleListResponse {
+  code: number;
+  current_page: number;
+  data: Article[];
+  pages: number;
+  total: number;
+}
+
+export interface ArticleListRequest {
+  page?: number;
+  pageSize?: number;
+}
+
 export type { IResponse, IFolder, IArticle };
 
 export { NODE_TYPE };

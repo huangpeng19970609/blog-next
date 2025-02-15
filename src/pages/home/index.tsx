@@ -15,8 +15,8 @@ import { homePageConfig, SlideItem } from "@/config/home-page";
 import { ColorUtils } from "@/utils/css";
 import { Button } from "antd";
 import { RightOutlined } from "@ant-design/icons";
-import { getCurrentFolderDetail } from "@/request/folder/api";
 import { useRouter } from "next/router";
+import { getLatestArticle } from "@/request/article/api";
 
 function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   const [, contextHolder] = message.useMessage();
@@ -29,15 +29,13 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
-    getCurrentFolderDetail().then((res) => {
-      const lists =
-        res &&
-        res.article.map((item, index) => ({
-          id: item.id + "",
-          url: "/images/home/" + (index + 1) + ".jpg",
-          title: item.name,
-          description: item.content.slice(0, 15),
-        }));
+    getLatestArticle().then((res) => {
+      const lists = res.data.map((item, index) => ({
+        id: item.id + "",
+        url: "/images/home/" + (index + 1) + ".png",
+        title: item.title,
+        description: item.content.slice(0, 15),
+      }));
 
       setSlides(lists || []);
     });

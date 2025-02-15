@@ -1,13 +1,6 @@
 import { ReactNode } from "react";
-import dynamic from "next/dynamic";
 
-// 动态导入页面组件
-const Home = dynamic(() => import("@/pages/home"));
-const Blog = dynamic(() => import("@/pages/blog"));
-const Test = dynamic(() => import("@/pages/test"));
-const FolderManager = dynamic(() => import("@/pages/test/FolderManager"));
-const ArticleEditor = dynamic(() => import("@/components/ArticleEditor"));
-
+// 改为静态导入
 export interface RouteConfig {
   path: string;
   title?: string;
@@ -32,14 +25,14 @@ const routes: RouteConfig[] = [
   },
   {
     path: "/test",
-    title: "黄鹏的编辑",
+    title: "编辑",
     children: [
       {
         path: "/test/folder-manager",
         title: "文件管理",
       },
     ],
-    hidden: process.env.NODE_ENV === "production",
+    hidden: true,
   },
 ];
 

@@ -11,14 +11,17 @@ import "./normal.css";
 import styles from "./_app.module.scss";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import RouterProvider from "@/components/RouterProvider";
+import { StyleProvider } from "@ant-design/cssinjs";
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <div className={styles["bg-color"]}>
-      <Header />
-      <AntdRegistry>
-        <RouterProvider Component={Component} pageProps={pageProps} />
-      </AntdRegistry>
+      <StyleProvider hashPriority="high">
+        <Header />
+        <AntdRegistry>
+          <RouterProvider Component={Component} pageProps={pageProps} />
+        </AntdRegistry>
+      </StyleProvider>
     </div>
   );
 }

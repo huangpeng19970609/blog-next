@@ -1,5 +1,5 @@
 // 第三次封装 - 业务污染
-import { Button, Input,  Spin, Divider } from "antd";
+import { Button, Input, Spin, Divider } from "antd";
 import { useEffect, useState } from "react";
 import BytemdBaseCmp from "./base/index";
 import { COMCOS, request } from "@/request";
@@ -115,7 +115,7 @@ export default function ArticleEditor({
   };
 
   return (
-    <Spin spinning={loading} tip="加载中...">
+    <Spin spinning={loading} tip="加载中..." style={{ width: "100%" }}>
       <motion.div
         className={styles.container}
         initial={{ opacity: 0, y: 20 }}
@@ -135,14 +135,8 @@ export default function ArticleEditor({
             className={styles.titleInput}
           />
         )}
+
         <Divider />
-        <BytemdBaseCmp
-          value={value}
-          onUpload={handleUpload}
-          readonly={readonly}
-          isReadonly={readonly}
-          onChange={(value: string) => setValue(value)}
-        />
         {!readonly && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -154,6 +148,13 @@ export default function ArticleEditor({
             </Button>
           </motion.div>
         )}
+        <BytemdBaseCmp
+          value={value}
+          onUpload={handleUpload}
+          readonly={readonly}
+          isReadonly={readonly}
+          onChange={(value: string) => setValue(value)}
+        />
       </motion.div>
     </Spin>
   );

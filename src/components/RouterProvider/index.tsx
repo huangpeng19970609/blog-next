@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import routes from "@/config/routes";
 import { matchPath } from "@/utils/router";
+import styles from "./style.module.scss";
 
 interface RouterProviderProps {
   Component: React.ComponentType<any>;
@@ -29,5 +30,9 @@ export default function RouterProvider({
     }
   }, [router.pathname]);
 
-  return <Component {...pageProps} />;
+  return (
+    <div className={styles.container}>
+      <Component {...pageProps} />
+    </div>
+  );
 }

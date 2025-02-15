@@ -1,9 +1,12 @@
 .loginContainer {
+  height: calc(100vh - 90px); // 使容器占满整个视口高度
+  background: url("/images/login/login-bg.jpg");
+  background-size: cover; // 确保背景图片覆盖整个容器
+  background-position: center center;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f0f2f5;
+
 }
 
 .loginForm {

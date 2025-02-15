@@ -10,7 +10,10 @@ import {
 
 // 获得初始化文件夹结构数据
 export function getInitFolder(): Promise<IResponse<IFolder>> {
-  return request.get(COMCOS.BaseURL + "/folder/1");
+  return request({
+    url: COMCOS.BaseURL + "/folder/1",
+    method: "GET",
+  });
 }
 
 // 获得指定文件夹的结构数据
@@ -19,7 +22,10 @@ export function getFolderList({
 }: {
   id: string;
 }): Promise<IResponse<IFolder>> {
-  return request.get(COMCOS.BaseURL + `/folder/${id}`);
+  return request({
+    url: COMCOS.BaseURL + `/folder/${id}`,
+    method: "GET",
+  });
 }
 
 // 创建文档

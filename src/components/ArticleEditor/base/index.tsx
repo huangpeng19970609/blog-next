@@ -31,6 +31,7 @@ import markdown from "remark-parse";
 import { unified } from "unified";
 import styles from "./index.module.scss";
 import { useEffect } from "react";
+import { COMCOS } from "@/request";
 
 const plugins = [
   gfm(), // GFM
@@ -43,12 +44,22 @@ const plugins = [
   mermaid(), // 流程图
 ];
 
+// 添加类型定义
+interface TocItem {
+  value: string;
+  depth: number;
+  children: TocItem[];
+  index?: number[];
+}
+
+type TocTree = TocItem[];
+
 const getTocTree = (val: string): TocTree => {
   try {
     const processor = unified().use(markdown, { commonmark: true }).use(toc);
     const node = processor.parse(val);
     const tree = processor.runSync(node);
-    return tree as unknown as TocTree;
+    return tree as TocTree;
   } catch (error) {
     return [];
   }
@@ -213,43 +224,43 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
             value={props.value}
             onChange={onChange}
             uploadImages={async (files: File[]) => {
-              try {
-                if (!props.onUpload) {
-                  notification.error({
-                    message: "未配置图片上传功能",
-                  });
-                  return [];
-                }
-
-                const results = await Promise.all(
-                  files.map(async (file) => {
-                    const formData = new FormData();
-                    formData.append("file", file);
-                    const response = await props.onUpload(formData);
-
-                    if (response.code === 200) {
-                      const data = response.data;
-                      return {
-                        title: data.filename,
-                        url: data.url,
-                      };
-                    } else {
-                      notification.error({
-                        message: response.message || "图片上传失败",
-                      });
-                      return null;
-                    }
-                  })
-                );
-
-                return results.filter(Boolean);
-              } catch (error) {
+              if (!props.onUpload) {
                 notification.error({
-                  message: "图片上传出错",
-                  description: error.message,
+                  message: "未配置图片上传功能",
                 });
                 return [];
               }
+
+              const results = await Promise.all(
+                files.map(async (file) => {
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  const response = await props.onUpload(formData);
+
+                  if (response.code === 200) {
+                    notification.success({
+                      message: "图片上传失败",
+                    });
+                    const data = response.data;
+                    return {
+                      title: data.filename,
+                      url: COMCOS.UploadImagePrefix + data.url,
+                    };
+                  } else {
+                    notification.error({
+                      message: response.message || "图片上传失败",
+                    });
+                    return null;
+                  }
+                })
+              );
+
+              return results.filter(Boolean);
+              notification.error({
+                message: "图片上传出错",
+                description: error.message,
+              });
+              return [];
             }}
           />
         </div>

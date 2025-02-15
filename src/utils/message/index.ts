@@ -23,7 +23,9 @@ const ErrorstyledIcon = React.createElement(FrownOutlined, {
 const config = {
   showProgress: true,
   pauseOnHover: true,
-  duration: 2,
+  duration: 1,
+  maxCount: 1,
+  stack: 1,
 };
 
 const openNotification = (

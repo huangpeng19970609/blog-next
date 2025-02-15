@@ -24,7 +24,10 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
   const fetchArticleDetail = async () => {
     try {
       setLoading(true);
-      const response = await request.get(`/api/article/${id || idQuery}`);
+      const response = await request({
+        url: `/article/${id || idQuery}`,
+        method: "GET",
+      });
       setContent(response.data?.content || "");
       setTitle(response.data?.title || "");
     } catch (error) {
