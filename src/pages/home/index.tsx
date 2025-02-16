@@ -59,7 +59,7 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   const handleGoToArticle = () => {
     const id = slides[activeIndex]?.id;
     if (id) {
-      router.push(`/daily?articleId=${id}`);
+      router.push(`/test/article-detail/${id}`);
     }
   };
 

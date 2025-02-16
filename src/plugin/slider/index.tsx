@@ -30,37 +30,46 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
 
   const ImageList = list.map((item, index) => {
     const isActive = activeStep === index;
-
     const finallyWidth = isActive ? width + 40 : width;
 
-    const transform =
-      "translateY(" +
-      (activeStep - index) * -1 * (height + 20) +
-      "px) translate3d(0px, 0px, 30px) rotateX(0deg) rotateY(-50deg) scale(1) rotate3d(0, 1, 6, 6deg)";
+    // 增强3D效果的transform
+    const transform = isActive
+      ? "translate3d(0, 0, 100px) rotateX(0deg) scale(1.08)"
+      : index > activeStep
+      ? `translate3d(0, ${
+          (index - activeStep) * (height + 20)
+        }px, -100px) rotateX(10deg) scale(0.95)`
+      : `translate3d(0, ${
+          (index - activeStep) * (height + 20)
+        }px, -100px) rotateX(-10deg) scale(0.95)`;
 
     return (
       <div
-        className={
-          (styles["image-list-item-container"],
-          styles["slide-rotate-ver-r-bck"])
-        }
+        className={`${styles["image-list-item-container"]} ${
+          isActive ? styles.active : ""
+        }`}
         key={index}
       >
         <div
-          className={styles["image-list-item"]}
+          className={`${styles["image-list-item"]} ${
+            isActive ? styles.active : ""
+          }`}
           style={{
-            transform: transform,
-            opacity: isActive ? "" : "0.4",
+            transform,
+            zIndex: list.length - Math.abs(activeStep - index),
           }}
         >
-          {
-            <Image
-              width={finallyWidth}
-              height={height}
-              alt="Picture of the author"
-              src={item.url}
-            ></Image>
-          }
+          <Image
+            width={finallyWidth}
+            height={height}
+            alt={item.title || "Slider image"}
+            src={item.url}
+            style={{
+              objectFit: "cover",
+              borderRadius: "12px",
+            }}
+            priority={index === 0}
+          />
           <div style={{ width: "100%", height: "100%" }}></div>
         </div>
       </div>
@@ -74,7 +83,7 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
     if (themes[index] && onThemeChange) {
       onThemeChange(themes[index]);
     }
-    
+
     if (onSlideChange) {
       onSlideChange(index);
     }
@@ -84,14 +93,9 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
     return (
       <div key={index} onClick={() => buttonClick(index)}>
         <div
-          className={styles["button"]}
-          style={
-            activeStep === index
-              ? {
-                  background: "pink",
-                }
-              : undefined
-          }
+          className={`${styles["button"]} ${
+            activeStep === index ? styles.active : ""
+          }`}
         ></div>
       </div>
     );
@@ -132,10 +136,10 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles["imge-list-container"]}>{ImageList}</div>
       <div className={styles["button-list"]}>
         <div className={styles["list-container"]}>{ButtonList}</div>
       </div>
+      <div className={styles["imge-list-container"]}>{ImageList}</div>
     </div>
   );
 }

@@ -37,10 +37,10 @@ export default function FileUpload() {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={300} theme="light" style={{ padding: "20px" }}>
+    <div className={styles.layout}>
+      <div className={styles.sider}>
         <Menu
-          mode="inline"
+          mode="horizontal"
           selectedKeys={[selectedKey]}
           style={{ borderRight: 0 }}
           items={[
@@ -64,9 +64,9 @@ export default function FileUpload() {
             },
           ]}
         />
-      </Sider>
+      </div>
 
-      <Content style={{ padding: "20px" }}>
+      <Content className={styles.content}>
         {selectedKey === "folders" && (
           <FolderManager
             folders={folders}
@@ -76,6 +76,8 @@ export default function FileUpload() {
         {selectedKey === "articles" && <ArticleList />}
         {selectedKey === "upload" && (
           <ArticleEditor
+            cover_url=""
+            readonly={false}
             onSuccess={() => {
               openNotification("文章创建成功", "文章创建成功", "success");
               handleMenuClick("articles");
@@ -83,6 +85,6 @@ export default function FileUpload() {
           />
         )}
       </Content>
-    </Layout>
+    </div>
   );
 }

@@ -338,8 +338,8 @@ export default function FolderManager() {
   };
 
   return (
-    <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
-      <Card>
+    <div className={styles.container}>
+      <div style={{ padding: "0px", height: "100%" }}>
         <div
           style={{
             display: "flex",
@@ -390,7 +390,11 @@ export default function FolderManager() {
             >
               返回列表
             </Button>
-            <ArticleEditor id={editingArticle.id?.toString()} />
+            {/* 编辑文章入口 */}
+            <ArticleEditor
+              id={editingArticle.id?.toString()}
+              readonly={false}
+            />
           </div>
         ) : (
           <>
@@ -490,21 +494,22 @@ export default function FolderManager() {
                 文档列表
               </h3>
               <Table
+                style={{
+                  background: "#fff",
+                  borderRadius: "8px",
+                }}
+                scroll={{ y: 300 }}
                 columns={columns}
                 dataSource={articles}
                 pagination={{
                   pageSize: 10,
                   showTotal: (total) => `共 ${total} 条`,
                 }}
-                style={{
-                  background: "#fff",
-                  borderRadius: "8px",
-                }}
               />
             </div>
           </>
         )}
-      </Card>
+      </div>
 
       <Modal
         title="新建文件夹"
@@ -576,7 +581,14 @@ export default function FolderManager() {
         width={800}
       >
         {previewArticle.id && (
-          <ArticleEditor id={previewArticle.id.toString()} readonly />
+          <ArticleEditor
+            id={previewArticle.id.toString()}
+            readonly
+            cover_url={
+              articles.find((article) => article.id === previewArticle.id)
+                ?.cover_url
+            }
+          />
         )}
       </Modal>
 

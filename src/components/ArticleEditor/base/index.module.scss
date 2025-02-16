@@ -250,8 +250,7 @@
 // 只读模式样式
 .mdViewer {
   padding: 0px;
-  min-height: 500px;
-  max-height: calc(100vh - 280px);
-  overflow-y: auto;
+  min-height: calc(100% - 10px);
+  overflow-y: scroll;
   width: 100%;
 }

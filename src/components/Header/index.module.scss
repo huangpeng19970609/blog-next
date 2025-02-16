@@ -28,11 +28,11 @@
 .active {
   // 这里添加激活状态的样式，例如：
   a {
-    color: #1890ff;
+    color: var(--padding-right-color);
     font-weight: bold;
   }
   // 或者添加底部边框
-  border-bottom: 2px solid #1890ff;
+  border-bottom: 2px solid var(--padding-right-color);
 }
 
 .leftMenu {

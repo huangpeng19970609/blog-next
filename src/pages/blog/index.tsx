@@ -18,6 +18,7 @@ import { request, staticRequest } from "@/request";
 import { MenuInfo } from "@/type/react.type";
 import { openNotification } from "@/utils/message";
 import { getLastArticle, setLastArticle } from "@/utils/cookie";
+import { Article } from "@/type/request.type";
 
 type TabPosition = "left" | "right" | "top" | "bottom";
 
@@ -43,12 +44,13 @@ function Blog(props: any) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   // 添加文章内容状态
-  const [articleContent, setArticleContent] = useState<{
-    content: string;
-    title: string;
-  }>({
-    content: "",
+  const [articleContent, setArticleContent] = useState<Article>({
+    id: 0,
     title: "",
+    content: "",
+    user_id: 0,
+    created_at: "",
+    cover_url: "",
   });
 
   // 修改 getParentKeys 函数，处理路径前缀问题
@@ -150,6 +152,7 @@ function Blog(props: any) {
             title={articleContent.title}
             value={articleContent.content}
             readonly={true}
+            cover_url={articleContent.cover_url}
           />
         ) : (
           <Empty description={false} />

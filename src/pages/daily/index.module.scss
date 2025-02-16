@@ -2,6 +2,9 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+  margin-left: 5px;
+  border-radius: 10px;
 
   .content {
     flex: 1;
@@ -9,18 +12,14 @@
   }
 
   .footer {
+    position: absolute;
+    top: 0;
+    right: 30px;
     height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-    :global {
-      .ant-switch {
-        &.ant-switch-checked {
-          background: var(--theme-color);
-        }
-      }
-    }
+    z-index: 100;
   }
 }

@@ -3,6 +3,7 @@ import { request } from "@/request";
 import { Spin } from "antd";
 import { useRouter } from "next/router";
 import ArticleEditor from "@/components/ArticleEditor";
+import { getArticleDetail } from "@/request/article/api";
 
 interface ArticleDetailProps {
   id: number;
@@ -24,10 +25,7 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
   const fetchArticleDetail = async () => {
     try {
       setLoading(true);
-      const response = await request({
-        url: `/article/${id || idQuery}`,
-        method: "GET",
-      });
+      const response = await getArticleDetail({ id: id || idQuery });
       setContent(response.data?.content || "");
       setTitle(response.data?.title || "");
     } catch (error) {
@@ -42,5 +40,5 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
     return <Spin />;
   }
 
-  return <ArticleEditor title={title} value={content} isReadonly={true} />;
+  return <ArticleEditor title={title} value={content} readonly={true} />;
 }

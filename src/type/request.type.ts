@@ -25,6 +25,7 @@ interface IArticle {
   content: string;
   // "2025-01-19T08:27:06"
   created_at: string;
+  cover_url: string;
 }
 
 export interface Article {
@@ -33,6 +34,7 @@ export interface Article {
   content: string;
   user_id: number;
   created_at: string;
+  cover_url: string;
 }
 
 export interface ArticleListResponse {

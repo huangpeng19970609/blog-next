@@ -50,27 +50,27 @@ export function deleteArticle(id: string) {
   });
 }
 
-// 获取文章详情
-export function getArticleDetail({ id }: { id: string }) {
+export function getArticleDetail({ id }: { id: number }) {
   return request({
-    url: COMCOS.BaseURL + `/article/detail?id=${id}`,
+    url: `${COMCOS.BaseURL}/article/${id}`,
     method: "GET",
   });
 }
-
 // 更新文章
 export function updateArticle({
   id,
   content,
   title,
+  cover_url,
 }: {
   id: string;
   content: string;
   title: string;
+  cover_url?: string;
 }) {
   return request({
     url: COMCOS.BaseURL + `/article/${id}`,
     method: "PUT",
-    data: { content, title },
+    data: { content, title, cover_url },
   });
 }

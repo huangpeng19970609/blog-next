@@ -14,12 +14,16 @@
 }
 .right {
   width: 50%;
+  position: absolute;
+  right: 0%;
+  z-index: 1;
 }
 .container {
   display: flex;
   margin-top: 150px;
   // header 高度 + padding高度 一共为 90 + 150
   height: calc(100% - 150px - 90px);
+  overflow: hidden;
 }
 
 // 右侧区域
