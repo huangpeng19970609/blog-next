@@ -5,16 +5,40 @@ import styles from "./index.module.scss";
 import { COMCOS, request } from "@/request";
 import { useRouter } from "next/router";
 import { openNotification } from "@/utils/message";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CONFIG } from "@/config";
 
 interface LoginForm {
   username: string;
   password: string;
+  captcha: string;
 }
 
 export default function Login() {
   const router = useRouter();
+
+  const [captchaId, setCaptchaId] = useState("");
+  const [imageBase64, setImageBase64] = useState("");
+
+  const getCaptcha = async () => {
+    try {
+      const res = await request({
+        url: COMCOS.BaseURL + "/captcha/get",
+        method: "GET",
+      });
+      if (res.code === 200) {
+        const { captcha_id, image_base64 } = res.data;
+        setCaptchaId(captcha_id);
+        setImageBase64(image_base64);
+      }
+    } catch (error) {
+      console.error("获取验证码失败:", error);
+    }
+  };
+
+  useEffect(() => {
+    getCaptcha();
+  }, []);
 
   const onFinish = async (values: LoginForm) => {
     // 登录
@@ -24,6 +48,8 @@ export default function Login() {
       data: {
         username: values.username,
         password: values.password,
+        captcha_text: values.captcha,
+        captcha_id: captchaId,
       },
     }).then((res) => {
       if (res.code === 200) {
@@ -43,12 +69,14 @@ export default function Login() {
   let form = {
     username: "",
     password: "",
+    captcha: "",
   };
 
   if (CONFIG.isDevelopment) {
     form = {
       username: "admin",
       password: "123456",
+      captcha: "",
     };
   }
 
@@ -96,6 +124,32 @@ export default function Login() {
               marginBottom: "20px",
             }}
           />
+        </Form.Item>
+        <Form.Item
+          name="captcha"
+          rules={[{ required: true, message: "请输入验证码" }]}
+        >
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Input
+              placeholder="验证码"
+              style={{
+                borderRadius: "5px",
+                borderColor: "#1890ff",
+                marginBottom: "20px",
+              }}
+            />
+            {imageBase64 && (
+              <img
+                src={imageBase64}
+                alt="验证码"
+                onClick={getCaptcha}
+                style={{
+                  cursor: "pointer",
+                  height: "32px",
+                }}
+              />
+            )}
+          </div>
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" block>

@@ -12,6 +12,7 @@ import ArticleList from "@/pages/test/ArticleList";
 import FolderManager from "@/pages/test/FolderManager";
 import { useRouter, useSearchParams } from "next/navigation";
 import { openNotification } from "@/utils/message";
+import { isVerifyToken } from "@/request/user";
 
 const { Sider, Content } = Layout;
 
@@ -35,6 +36,18 @@ export default function FileUpload() {
     setSelectedKey(key);
     router.push(`/test?key=${key}`);
   };
+
+  useEffect(() => {
+    isVerifyToken().then((res) => {
+      if (!res) {
+        openNotification("未登录或登录已过期", "未登录或登录已过期", "error");
+      }
+      //
+      else {
+        openNotification("登录成功", "登录成功", "success");
+      }
+    });
+  }, []);
 
   return (
     <div className={styles.layout}>

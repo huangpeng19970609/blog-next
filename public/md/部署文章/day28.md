@@ -685,9 +685,87 @@ sleep 0.5
 
 
 
+## redis
+
+1. 使用修改systemd服务配置 或许是更好的选择
+2. 
+
+使用redis的原因:
+
+查看radis日志
+
+````bash
+cat logfile /var/log/redis/redis.log
+````
 
 
 
+在远端服务器上测试： redis-cli -h 1.13.189.249 -p 7080 ping
+
+
+
+redis-cli -h 1.13.189.249 -p 7080 -a '这是你的密码 '
+
+
+
+基本排除了所有的原因，看起来就像是密码没有输对导致的错误，但是我又很肯定密码是正确的
+
+
+
+继续定位原因：
+
+https://tongyi.aliyun.com/?sessionId=900be78b980b40458b9dba7fefc5bc01
+
+https://tongyi.aliyun.com/?sessionId=3e1a404d805b4b23b73ff4f4e8206c4c
+
+
+
+其实对于我这种小体量的博客来说，本来是不需要做这类处理的。不过由于涉及到了验证码，故需要使用redis来满足这个需求。其实我觉得存数据库也可以，每次数据达到1000条的时候删除所有之前的验证码缓存即可，不过这样确实很蠢。
+
+1. 执行`dnf update`或`yum update`命令的主要目的是确保您的系统上所有已安装的软件包都是最新的，这包括安全补丁和错误修复。这样做有几个好处：
+
+   - **安全性**：更新软件包可以修补已知的安全漏洞，保护您的系统免受潜在威胁。
+   - **兼容性**：确保您安装的新软件（如Redis）与系统上的其他组件兼容。
+   - **稳定性**：通过应用最新的补丁来提高系统的稳定性和性能。
+
+   ```bash
+   sudo dnf update 
+   ```
+
+2. 安装EPEL仓库 (不一定必要的，腾讯云就不需要)
+
+   ```bash
+   sudo dnf install epel-release  # 对于dnf
+   ```
+
+   
+
+   EPEL（Extra Packages for Enterprise Linux）是一个由Fedora项目维护的免费软件库，它为RHEL及其衍生产品（如CentOS、AlmaLinux、Rocky Linux等）提供了额外的企业级开源软件包。并不是所有的第三方软件都包含在标准的软件仓库中，Redis就是一个例子，尤其是在一些较旧的或默认配置的Red Hat系列Linux发行版中可能不会直接提供Redis。
+
+   - 通过启用EPEL仓库，您可以更方便地使用`dnf`或`yum`命令安装像Redis这样的软件，而不需要手动下载和编译源代码。
+   - **访问更多软件包**：EPEL提供了大量的附加软件包，这些软件包不在官方的标准仓库中。对于许多开发者和管理员来说，这是获得所需工具的一个重要资源。
+
+3. 安装Redis服务器, 并且启动
+
+   `````bash
+   sudo dnf install redis-server
+   
+   # 启动 
+   sudo systemctl start redis
+   # 设置开启自启动
+   sudo systemctl enable redis
+   `````
+
+4. 需要配置服务器防护墙 
+
+   bash深色版本
+
+   ```
+   sudo firewall-cmd --zone=public --add-port=6379/tcp --permanent
+   sudo firewall-cmd --reload
+   ```
+
+5. 
 
 
 

@@ -63,7 +63,6 @@ instance.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           errorMessage = "未登录或登录已过期";
-          window.location.href = "/login"; // 跳转到登录页
           break;
         case 403:
           errorMessage = "没有权限访问";

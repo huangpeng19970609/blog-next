@@ -11,6 +11,7 @@ import { Button } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
 import routes from "@/config/routes";
 import { useState, useEffect } from "react";
+import { request } from "@/request";
 
 export default function Header() {
   const router = useRouter();
@@ -42,18 +43,25 @@ export default function Header() {
     setFinnalyRoutes(finnalyRoutes);
   }, []);
 
-  const handleLogin = () => {
-    if (router.pathname === "/login") {
-      return;
-    }
-    router.push("/login");
-  };
+  // const handleLogin = () => {
+  //   if (router.pathname === "/login") {
+  //     return;
+  //   }
+  //   router.push("/login");
+  // };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     router.push("/login");
     setUser(null);
+  };
+
+  const handleTest = () => {
+    request({
+      url: "/api" + "/captcha/test_redis/",
+      method: "GET",
+    });
   };
 
   return (
@@ -70,7 +78,7 @@ export default function Header() {
           </div>
         ))}
       </div>
-      <div className={styles.rightMenu}>
+      {/* <div className={styles.rightMenu}>
         {user ? (
           <Button
             type="primary"
@@ -84,7 +92,7 @@ export default function Header() {
             登录
           </Button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
