@@ -44,15 +44,16 @@ const nextConfig = {
       },
     ];
   },
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/home',
-        permanent: true,
-      },
-    ]
-  },
+  // redirects: 静态打包不会生效
+  // async redirects() {
+  //   return [
+  //     {
+  //       source: '/',
+  //       destination: '/home',
+  //       permanent: true,
+  //     },
+  //   ]
+  // },
 
   // 添加 ESLint 配置
   eslint: {

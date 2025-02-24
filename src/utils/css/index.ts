@@ -7,7 +7,6 @@
 
 // 修改mainColor
 function changeMainColor(color: string) {
-  // const bodyColor = '--body-bg-color: black'
   const mainColor = "--main-bg-color";
 
   const html = document.querySelector("html")!;
@@ -29,7 +28,7 @@ function changeFontColor(color: string) {
 function changePaddingColor(color: string) {
   const html = document.querySelector("html")!;
 
-  const fontColor = "--padding-right-color";
+  const fontColor = "--hp-line-color";
 
   // 修改一个 Dom 节点上的 CSS 变量
   html.style.setProperty(fontColor, color);
@@ -38,7 +37,7 @@ function changePaddingColor(color: string) {
 function changeTitleColor(color: string) {
   const html = document.querySelector("html")!;
 
-  const fontColor = "--title-color";
+  const fontColor = "--font-color";
 
   // 修改一个 Dom 节点上的 CSS 变量
   html.style.setProperty(fontColor, color);

@@ -24,6 +24,10 @@ const routes: RouteConfig[] = [
     title: "日记",
   },
   {
+    path: "/game",
+    title: "游戏",
+  },
+  {
     path: "/test",
     title: "编辑",
     children: [

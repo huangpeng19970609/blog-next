@@ -16,6 +16,8 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState<string>("");
 
+  const [cover_url, setCoverUrl] = useState<string>("");
+
   useEffect(() => {
     if (idQuery || id) {
       fetchArticleDetail();
@@ -28,6 +30,7 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
       const response = await getArticleDetail({ id: id || idQuery });
       setContent(response.data?.content || "");
       setTitle(response.data?.title || "");
+      setCoverUrl(response.data?.cover_url || "");
     } catch (error) {
       console.error("获取文章详情失败:", error);
       setContent("");
@@ -40,5 +43,12 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
     return <Spin />;
   }
 
-  return <ArticleEditor title={title} value={content} readonly={true} />;
+  return (
+    <ArticleEditor
+      title={title}
+      value={content}
+      cover_url={cover_url}
+      readonly={true}
+    />
+  );
 }

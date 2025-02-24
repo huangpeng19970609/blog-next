@@ -1,0 +1,19 @@
+.hp-global-mouse-alive {
+  .custom-mouse-cursor {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--font-color);
+    background: var(--main-bg-color);
+    border-radius: 50%; 
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--font-color);
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+  }
+}

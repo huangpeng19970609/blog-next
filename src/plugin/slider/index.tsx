@@ -21,18 +21,77 @@ interface SliderProps {
 
 function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
   const width = 900;
-
   const height = 500;
-
   const [activeStep, setActiveStep] = useState<number>(0);
-
   const activeStepRef = useRef<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const lastInteractionTime = useRef<number>(0);
+
+  const handleSlideChange = useCallback(
+    (newIndex: number) => {
+      if (isTransitioning) return;
+      if (newIndex < 0 || newIndex >= list.length) return;
+
+      setIsTransitioning(true);
+      setActiveStep(newIndex);
+      activeStepRef.current = newIndex;
+
+      if (themes[newIndex] && onThemeChange) {
+        onThemeChange(themes[newIndex]);
+      }
+
+      if (onSlideChange) {
+        onSlideChange(newIndex);
+      }
+
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 500);
+    },
+    [isTransitioning, list.length, onThemeChange, onSlideChange, themes]
+  );
+
+  // 处理滚轮事件，节流时间调整为 300ms
+  const handleWheel = useCallback(
+    throttle((e: WheelEvent) => {
+      e.preventDefault();
+
+      const now = Date.now();
+      if (now - lastInteractionTime.current < 500) return;
+      lastInteractionTime.current = now;
+
+      const currentIndex = activeStepRef.current;
+      if (e.deltaY > 0 && currentIndex < list.length - 1) {
+        handleSlideChange(currentIndex + 1);
+      } else if (e.deltaY < 0 && currentIndex > 0) {
+        handleSlideChange(currentIndex - 1);
+      }
+    }, 300),
+    [handleSlideChange, list.length]
+  );
+
+  // 按钮点击处理
+  const buttonClick = (index: number) => {
+    handleSlideChange(index);
+  };
+
+  useEffect(() => {
+    const element = document.querySelector(`.${styles.container}`);
+    if (element) {
+      element.addEventListener("wheel", handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (element) {
+        element.removeEventListener("wheel", handleWheel);
+      }
+    };
+  }, [handleWheel]);
 
   const ImageList = list.map((item, index) => {
     const isActive = activeStep === index;
     const finallyWidth = isActive ? width + 40 : width;
 
-    // 增强3D效果的transform
     const transform = isActive
       ? "translate3d(0, 0, 100px) rotateX(0deg) scale(1.08)"
       : index > activeStep
@@ -60,6 +119,7 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
           }}
         >
           <Image
+            hp-mouse-name="scroll"
             width={finallyWidth}
             height={height}
             alt={item.title || "Slider image"}
@@ -76,63 +136,15 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
     );
   });
 
-  const buttonClick = (index: number) => {
-    setActiveStep(index);
-    activeStepRef.current = index;
-
-    if (themes[index] && onThemeChange) {
-      onThemeChange(themes[index]);
-    }
-
-    if (onSlideChange) {
-      onSlideChange(index);
-    }
-  };
-
-  const ButtonList = list.map((item, index) => {
-    return (
-      <div key={index} onClick={() => buttonClick(index)}>
-        <div
-          className={`${styles["button"]} ${
-            activeStep === index ? styles.active : ""
-          }`}
-        ></div>
-      </div>
-    );
-  });
-
-  const onWheel = useCallback(
-    debounce((e: WheelEvent) => {
-      const deltaY = e.deltaY;
-
-      const val = activeStepRef.current;
-
-      // 向下
-      if (deltaY > 0) {
-        if (val + 1 <= list.length - 1) {
-          setActiveStep(val + 1);
-          activeStepRef.current = val + 1;
-        }
-      }
-      // 向上
-      else {
-        if (val - 1 >= 0) {
-          setActiveStep(val - 1);
-          activeStepRef.current = val - 1;
-        }
-      }
-
-      buttonClick(activeStepRef.current);
-    }, 100),
-    []
-  );
-  useEffect(() => {
-    window.addEventListener("wheel", onWheel);
-
-    return function () {
-      window.removeEventListener("wheel", onWheel);
-    };
-  }, []);
+  const ButtonList = list.map((item, index) => (
+    <div key={index} onClick={() => buttonClick(index)}>
+      <div
+        className={`${styles["button"]} ${
+          activeStep === index ? styles.active : ""
+        }`}
+      ></div>
+    </div>
+  ));
 
   return (
     <div className={styles.container}>
@@ -143,4 +155,5 @@ function Slider({ list, themes, onThemeChange, onSlideChange }: SliderProps) {
     </div>
   );
 }
+
 export default Slider;

@@ -141,6 +141,23 @@ export default function FolderManager() {
 
   const router = useRouter();
 
+  // 添加分页状态
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
+
+  // 修改 Table 组件的 pagination 配置
+  const tableProps = {
+    pagination: {
+      ...pagination,
+      showTotal: (total) => `共 ${total} 条`,
+      onChange: (page: number, pageSize: number) => {
+        setPagination({ current: page, pageSize });
+      },
+    },
+  };
+
   // 创建文件夹
   const handleAddFolder = async () => {
     if (!newFolderName.trim()) {
@@ -148,24 +165,20 @@ export default function FolderManager() {
       return;
     }
 
-    try {
-      const response = await createDocument(newFolderName, currentFolderId);
+    const response = await createDocument(newFolderName, currentFolderId);
 
-      if (response.code === 200) {
-        setFolders([
-          ...folders,
-          { id: Date.now(), name: newFolderName, type: "folder" },
-        ]);
-        setNewFolderName("");
-        setIsModalVisible(false);
-        openNotification("文件夹创建成功", "文件夹创建成功", "success");
-        // 重新获取文件夹列表
-        init(currentFolderId);
-      } else {
-        openNotification(response.message || "创建失败", "请稍后再试", "error");
-      }
-    } catch (error) {
-      openNotification("创建文件夹失败", "请稍后再试", "error");
+    if (response.code === 200) {
+      setFolders([
+        ...folders,
+        { id: Date.now(), name: newFolderName, type: "folder" },
+      ]);
+      setNewFolderName("");
+      setIsModalVisible(false);
+      openNotification("文件夹创建成功", "文件夹创建成功", "success");
+      // 重新获取文件夹列表
+      init(currentFolderId);
+    } else {
+      openNotification(response.message || "创建失败", "请稍后再试", "error");
     }
   };
 
@@ -209,6 +222,10 @@ export default function FolderManager() {
       setFolders(res.folder || []);
       setArticles(res.article || []);
       setCurrentFolderId(res.currentFolderId as number);
+      // 如果是新的文件夹，重置分页
+      if (folderId !== currentFolderId?.toString()) {
+        setPagination({ current: 1, pageSize: 10 });
+      }
     }
   };
 
@@ -299,11 +316,13 @@ export default function FolderManager() {
     });
   };
 
-  // 添加返回列表处理函数
-  const handleBackToList = () => {
+  // 修改返回列表处理函数
+  const handleBackToList = async () => {
     setEditingArticle({
       visible: false,
     });
+    // 返回时重新获取当前文件夹的内容，并保持分页状态
+    await init(currentFolderId?.toString());
   };
 
   // 添加编辑文件夹的处理函数
@@ -494,6 +513,7 @@ export default function FolderManager() {
                 文档列表
               </h3>
               <Table
+                {...tableProps}
                 style={{
                   background: "#fff",
                   borderRadius: "8px",
@@ -501,10 +521,6 @@ export default function FolderManager() {
                 scroll={{ y: 300 }}
                 columns={columns}
                 dataSource={articles}
-                pagination={{
-                  pageSize: 10,
-                  showTotal: (total) => `共 ${total} 条`,
-                }}
               />
             </div>
           </>

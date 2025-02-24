@@ -74,3 +74,18 @@ export function updateArticle({
     data: { content, title, cover_url },
   });
 }
+
+import { staticRequest } from "@/request";
+
+export function getStaticArticleData(requestUrl: string) {
+  return staticRequest({
+    url: requestUrl,
+    method: "GET",
+    responseType: "text",
+  }).then((val) => {
+    return {
+      content: val,
+      title: requestUrl.replace(/^md\//, ""),
+    };
+  });
+}

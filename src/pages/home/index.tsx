@@ -32,7 +32,7 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
     getLatestArticle().then((res) => {
       const lists = res.data.map((item, index) => ({
         id: item.id + "",
-        url: "/images/home/" + (index + 1) + ".png",
+        url: item.cover_url || "/images/home/" + (index + 1) + ".png",
         title: item.title,
         description: item.content.slice(0, 15),
       }));
@@ -70,6 +70,7 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
         <div className={styles.title}>{slides[activeIndex]?.title}</div>
         <div className={styles.content}>{slides[activeIndex]?.description}</div>
         <Button
+          hp-mouse-name="点击"
           onClick={handleGoToArticle}
           type="primary"
           icon={<RightOutlined />}

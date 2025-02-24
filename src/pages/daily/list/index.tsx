@@ -7,6 +7,7 @@ import { getArticleList } from "@/request/article/api";
 import { Article } from "@/type/request.type";
 import ArticleEditor from "@/components/ArticleEditor";
 import { useRouter } from "next/router";
+import { openNotification } from "@/utils/message";
 
 // 定义不同屏幕宽度下的列数
 const breakpointColumnsObj = {
@@ -99,6 +100,10 @@ function List() {
     if (inView && !loading && !isLoadingRef.current && hasMore && page > 1) {
       fetchArticles(page);
     }
+
+    if (!hasMore) {
+      openNotification("没有更多数据", "没有更多数据", "error");
+    }
   }, [inView, hasMore, page, fetchArticles, loading]);
 
   const handleArticleClick = (article: Article) => {
@@ -125,22 +130,20 @@ function List() {
             className={styles.imageContainer}
             onClick={() => handleArticleClick(article)}
             style={{ cursor: "pointer" }}
+            hp-mouse-name="click"
           >
             <div className={styles.imageWrapper}>
               {/* 文章图片，若无imageUrl则随机选择一个默认图片 */}
               <Image
                 alt={article.title}
-                src={
-                  article.cover_url ||
-                  `/images/home/${Math.floor(Math.random() * 7) + 1}.png`
-                }
+                src={article.cover_url || `/images/default.png`}
                 className={styles.image}
                 preview={false}
               />
               <div className={styles.titleBar}>
                 <h3 className={styles.title}>{article.title}</h3>
               </div>
-              <div className={styles.overlay}>
+              <div className={styles.overlay} hp-mouse-name="click">
                 <p className={styles.content}>{article.content}</p>
                 <div className={styles.footer}>
                   {/* 显示创建日期 */}
@@ -153,7 +156,7 @@ function List() {
           </div>
         ))}
       </Masonry>
-      {/* 加载指示器 */}
+      {/* 将加载指示器移动到这里 */}
       {loading && (
         <div className={styles.loadingMore}>
           <Spin size="large" />

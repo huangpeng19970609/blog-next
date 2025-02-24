@@ -22,17 +22,17 @@
   justify-content: flex-start;
   pointer-events: auto;
   cursor: pointer;
-  color: var(--title-color);
+  color: var(--font-color);
   padding: 10px;
 }
 .active {
   // 这里添加激活状态的样式，例如：
   a {
-    color: var(--padding-right-color);
+    color: var(--hp-line-color);
     font-weight: bold;
   }
   // 或者添加底部边框
-  border-bottom: 2px solid var(--padding-right-color);
+  border-bottom: 2px solid var(--hp-line-color);
 }
 
 .leftMenu {

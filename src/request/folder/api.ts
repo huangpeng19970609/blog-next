@@ -35,9 +35,13 @@ export function createDocument(name: string, folderId: string) {
     return;
   }
 
-  return request.post(COMCOS.BaseURL + "/folder/create", {
-    name,
-    parent_id: folderId,
+  return request({
+    url: COMCOS.BaseURL + "/folder/create",
+    method: "POST",
+    data: {
+      name,
+      parent_id: folderId,
+    },
   });
 }
 

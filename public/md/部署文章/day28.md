@@ -33,6 +33,9 @@ pip freeze > requirements.txt
    ````
 
 
+
+
+
 ### 静态资源配置
 
 例如 
@@ -247,8 +250,6 @@ FLUSH PRIVILEGES;
     
     # 进入了python环境的编辑器当中
     /usr/local/bin/python3
-    
-    
     ```
   
   /usr/local/bin/pip3
@@ -309,9 +310,13 @@ FLUSH PRIVILEGES;
 
   ```js
   tail -f /var/log/uwsgi/uwsgi.log
+  
+  
+  # 改进 uwsgi 配置以支持更好的错误报告
+  [uwsgi]
+  log-level = debug
+  logger = file:/var/log/uwsgi/app.log
   ```
-  
-  
   
 - 重启
 
@@ -388,9 +393,6 @@ pip install uwsgi
     sudo chmod 755 /var/log/uwsgi
     
     ```
-  ```
-    
-  ```
 
 ### ⭐ 使用 `systemd` 管理 uwsgi
 
@@ -437,8 +439,6 @@ sudo systemctl daemon-reload
 sudo systemctl restart uwsgi
 ```
 
-
-
 ### 启动 uwsgi 服务
 
 现在你可以像其他systemd管理的服务一样启动uwsgi服务：
@@ -471,9 +471,13 @@ sudo systemctl enable uwsgi
   ```
 
 - **重启服务**：
+  
   ```bash
+  sudo systemctl daemon-reload
   sudo systemctl restart uwsgi
   ```
+  
+- ps aux | grep uwsgi
 
 ### 服务常见问题
 

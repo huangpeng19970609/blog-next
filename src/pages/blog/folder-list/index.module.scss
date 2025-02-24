@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  height: calc(100% - 20px);
+  width: 100%;
+  background:  #f2f3f5;;
+}
+.left {
+  width: 20%;
+  height: 100%;
+  min-width: 250px;
+  overflow: hidden;
+  animation: slideInLeft 0.3s ease-out;
+  .segnent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+  }
+}
+.right {
+  width: 80%;
+  height: 100%;
+  display: flex;
+  animation: fadeIn 0.3s ease-out;
+  animation-delay: 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
