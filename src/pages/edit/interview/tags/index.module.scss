@@ -1,0 +1,34 @@
+.tagContainer {
+  .header {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tableWrapper {
+    :global {
+      .ant-table-cell {
+        vertical-align: middle;
+      }
+
+      .ant-tag {
+        margin: 4px;
+        padding: 4px 8px;
+        font-size: 14px;
+      }
+
+      .ant-table-row:hover {
+        .ant-space {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .tagDescription {
+    color: rgba(0, 0, 0, 0.45);
+    margin: 0;
+    line-height: 1.5;
+  }
+} 

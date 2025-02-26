@@ -107,7 +107,7 @@ function List() {
   }, [inView, hasMore, page, fetchArticles, loading]);
 
   const handleArticleClick = (article: Article) => {
-    router.push(`/test/article-detail/${article.id}`);
+    router.push(`/edit/article-detail/${article.id}`);
   };
 
   const handleModalClose = () => {

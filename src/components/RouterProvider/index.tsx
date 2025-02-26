@@ -1,7 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import routes from "@/config/routes";
-import { matchPath } from "@/utils/router";
+import TestRouterProvider from "../TestRouterProvider";
 import styles from "./style.module.scss";
 
 interface RouterProviderProps {
@@ -15,15 +13,11 @@ export default function RouterProvider({
 }: RouterProviderProps) {
   const router = useRouter();
 
-  useEffect(() => {
-    const currentRoute = routes.find((route) =>
-      matchPath(router.pathname, route)
-    );
-  }, [router.pathname]);
+  // 如果是 /test 路径，使用 TestRouterProvider
+  if (router.pathname.startsWith("/edit")) {
+    return <TestRouterProvider Component={Component} pageProps={pageProps} />;
+  }
 
-  return (
-    <div className={styles.container}>
-      <Component {...pageProps} />
-    </div>
-  );
+  // 其他路径直接渲染组件
+  return <Component {...pageProps} />;
 }

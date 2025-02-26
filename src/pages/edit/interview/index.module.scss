@@ -1,0 +1,11 @@
+.container {
+  padding: 24px;
+  background: #fff;
+  min-height: 100%;
+
+  :global {
+    .ant-tabs-nav {
+      margin-bottom: 24px;
+    }
+  }
+}

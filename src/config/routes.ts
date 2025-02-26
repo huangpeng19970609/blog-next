@@ -28,12 +28,16 @@ const routes: RouteConfig[] = [
     title: "游戏",
   },
   {
-    path: "/test",
+    path: "/edit",
     title: "编辑",
     children: [
       {
-        path: "/test/folder-manager",
+        path: "/folder-manager",
         title: "文件管理",
+      },
+      {
+        path: "/interview",
+        title: "面试题管理",
       },
     ],
     hidden: true,

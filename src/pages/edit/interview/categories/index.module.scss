@@ -1,0 +1,27 @@
+.categoryContainer {
+  .header {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tableWrapper {
+    :global {
+      .ant-table-cell {
+        vertical-align: top;
+      }
+
+      .ant-table-row:hover {
+        .ant-space {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .description {
+    color: rgba(0, 0, 0, 0.45);
+    margin: 0;
+  }
+} 
