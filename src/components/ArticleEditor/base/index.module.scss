@@ -1,15 +1,15 @@
 .article-base-container {
   // 设置基础容器样式
   position: relative;
-  min-height: 500px;
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
 
   // 编辑器区域样式
   :global {
     .bytemd {
-      height: calc(100vh - 200px) !important; // 设置最大高度，减去头部和其他区域的高度
-      min-height: 500px;
+      height: 100%;
+
       border: 1px solid #e8e8e8;
       border-radius: 4px;
 
@@ -61,6 +61,10 @@
         }
       }
     }
+  }
+
+  > div {
+    height: 100%;
   }
 }
 

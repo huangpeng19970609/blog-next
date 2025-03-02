@@ -2,6 +2,7 @@
 
 
 const nextConfig = {
+
   publicRuntimeConfig: {
     PROJECT_ROOT: __dirname,
     BASE_URL: '/',

@@ -31,6 +31,7 @@ export default function ArticleEditor({
   readonly = true,
   title: propsTitle,
   value: propsValue,
+  height,
   onChange,
   cover_url,
   isHiddenTitle = false, // 设置默认值
@@ -92,13 +93,17 @@ export default function ArticleEditor({
   };
 
   return (
-    <Spin spinning={loading} tip="加载中..." style={{ width: "100%" }}>
+    <Spin
+      spinning={loading}
+      tip="加载中..."
+      style={{ width: "100%", height: "100%" }}
+    >
       <motion.div
         className={styles.container}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ position: "relative", zIndex: 1 }}
+        style={{ position: "relative", zIndex: 1, height: "100%" }}
       >
         {/* 只在不隐藏标题时显示标题容器 */}
         {!isHiddenTitle && (

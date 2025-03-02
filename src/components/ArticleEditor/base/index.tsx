@@ -226,6 +226,7 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
           plugins={plugins}
           value={props.value}
           onChange={onChange}
+          style={{ height: "100%" }}
           uploadImages={async (files: File[]) => {
             if (!props.onUpload) {
               notification.error({

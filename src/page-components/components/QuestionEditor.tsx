@@ -1,3 +1,7 @@
+export const config = {
+  unstable_excludeFiles: true,
+};
+
 import { Form, Input, Select, Radio, Row, Col, Button, Space } from "antd";
 import { useState, useEffect } from "react";
 import ArticleEditor from "@/components/ArticleEditor";
@@ -30,7 +34,23 @@ export default function QuestionEditor({
     if (initialData) {
       setContent(initialData.content || "");
     }
-  }, [initialData]);
+
+    if (mode === "create" && !initialData) {
+      try {
+        const savedValues = localStorage.getItem("lastQuestionFormValues");
+        if (savedValues) {
+          const parsedValues = JSON.parse(savedValues);
+          form.setFieldsValue({
+            categoryId: parsedValues.categoryId,
+            tag_ids: parsedValues.tag_ids,
+            difficulty: parsedValues.difficulty,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading from localStorage:", error);
+      }
+    }
+  }, [initialData, mode, form]);
 
   const saveFormValues = (values: any) => {
     try {
@@ -82,7 +102,7 @@ export default function QuestionEditor({
   };
 
   return (
-    <div>
+    <div style={{ height: "450px" }}>
       <Space style={{ marginBottom: 16 }}>
         <Button onClick={onCancel}>返回</Button>
         {mode !== "view" && (
@@ -167,13 +187,15 @@ export default function QuestionEditor({
         </Form.Item>
       </Form>
 
-      <ArticleEditor
-        isHiddenTitle={true}
-        value={content}
-        onChange={(value: { content: string }) => setContent(value.content)}
-        readonly={mode === "view"}
-        showActions={false}
-      />
+      <div style={{ height: "400px" }}>
+        <ArticleEditor
+          isHiddenTitle={true}
+          value={content}
+          onChange={(value: { content: string }) => setContent(value.content)}
+          readonly={mode === "view"}
+          showActions={false}
+        />
+      </div>
     </div>
   );
 }

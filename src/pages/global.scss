@@ -111,3 +111,8 @@ html {
 .ant-tabs-content {
   height: 100%;
 }
+#md-content {
+  > div {
+    height: 100%;
+  }
+}

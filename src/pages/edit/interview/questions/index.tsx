@@ -23,9 +23,7 @@ import { getAllCategories } from "@/request/interview/category";
 import { getAllTags } from "@/request/interview/tag";
 import { openNotification } from "@/utils/message";
 import type { Question, Category, Tag } from "@/type/request.interview";
-
-import ArticleEditor from "@/components/ArticleEditor";
-import QuestionEditor from "./components/QuestionEditor";
+import QuestionEditor from "@/page-components/components/QuestionEditor";
 
 export default function Questions() {
   const router = useRouter();
@@ -180,40 +178,6 @@ export default function Questions() {
     }
   };
 
-  const handleSubmit = async (values: any) => {
-    try {
-      const data = {
-        ...values,
-        content,
-        category_id: values.categoryId,
-        status: values.status || "published",
-      };
-
-      if (modalMode === "create") {
-        saveFormValues(values);
-      }
-
-      let res;
-      if (modalMode === "edit" && currentQuestion) {
-        res = await updateQuestion(currentQuestion.id, data);
-      } else {
-        res = await createQuestion(data);
-      }
-
-      if (res?.code === 200) {
-        openNotification(
-          "成功",
-          `${modalMode === "edit" ? "更新" : "创建"}成功`,
-          "success"
-        );
-        handleCloseModal();
-        fetchQuestions(searchParams);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleCloseModal = () => {
     setShowEditor(false);
     setContent("");
@@ -290,16 +254,18 @@ export default function Questions() {
           />
         </>
       ) : showEditor ? (
-        <QuestionEditor
-          mode={modalMode}
-          initialData={currentQuestion}
-          categories={categories}
-          tags={tags}
-          onCancel={handleCloseModal}
-          onSuccess={() => {
-            handleCloseModal();
-          }}
-        />
+        <div style={{ height: "800px" }}>
+          <QuestionEditor
+            mode={modalMode}
+            initialData={currentQuestion}
+            categories={categories}
+            tags={tags}
+            onCancel={handleCloseModal}
+            onSuccess={() => {
+              handleCloseModal();
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );
