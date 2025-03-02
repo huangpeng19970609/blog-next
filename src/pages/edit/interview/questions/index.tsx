@@ -23,14 +23,16 @@ import { getAllCategories } from "@/request/interview/category";
 import { getAllTags } from "@/request/interview/tag";
 import { openNotification } from "@/utils/message";
 import type { Question, Category, Tag } from "@/type/request.interview";
-import BytemdBaseCmp from "@/components/ArticleEditor/base";
+
+import ArticleEditor from "@/components/ArticleEditor";
+import QuestionEditor from "./components/QuestionEditor";
 
 export default function Questions() {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">(
     "create"
   );
@@ -39,13 +41,29 @@ export default function Questions() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [content, setContent] = useState("");
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+  const [shouldInit, setShouldInit] = useState(false);
 
   const fetchQuestions = async (params = {}) => {
+    if (!shouldInit) return;
+
     setLoading(true);
     try {
-      const res = await getQuestionList(params);
+      const res = await getQuestionList({
+        ...params,
+        page: pagination.current,
+        per_page: pagination.pageSize,
+      });
       if (res.code === 200) {
         setQuestions(res.data.items);
+        setPagination((prev) => ({
+          ...prev,
+          total: res.data.total,
+        }));
       }
     } finally {
       setLoading(false);
@@ -53,8 +71,31 @@ export default function Questions() {
   };
 
   useEffect(() => {
-    fetchQuestions(searchParams);
-  }, [searchParams]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldInit(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const element = document.getElementById("questions-container");
+    if (element) {
+      observer.observe(element);
+    }
+
+    return () => {
+      observer.disconnect();
+      setShouldInit(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (shouldInit) {
+      fetchQuestions(searchParams);
+    }
+  }, [shouldInit, searchParams, pagination.current, pagination.pageSize]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,7 +118,7 @@ export default function Questions() {
       }
     };
     fetchData();
-  }, [form]);
+  }, []);
 
   const handleDelete = async (id: number) => {
     Modal.confirm({
@@ -93,28 +134,47 @@ export default function Questions() {
     });
   };
 
+  const getLastFormValues = () => {
+    try {
+      const stored = localStorage.getItem("lastQuestionFormValues");
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.error("Error reading from localStorage:", error);
+      return null;
+    }
+  };
+
+  const saveFormValues = (values: any) => {
+    try {
+      const toSave = {
+        categoryId: values.categoryId,
+        tag_ids: values.tag_ids,
+        difficulty: values.difficulty,
+      };
+      localStorage.setItem("lastQuestionFormValues", JSON.stringify(toSave));
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
+  };
+
   const handleOpenModal = async (
     mode: "create" | "edit" | "view",
     question?: Question
   ) => {
     setModalMode(mode);
-    setIsModalOpen(true);
-
+    setShowEditor(true);
     if (question) {
       setCurrentQuestion(question);
-      setContent(question.content);
-      form.setFieldsValue({
-        title: question.title,
-        categoryId: question.category.id,
-        tag_ids: question.tags.map((t) => t.id),
-        difficulty: question.difficulty,
-        status: question.status,
-      });
     } else {
       setCurrentQuestion(null);
-      setContent("");
-      form.resetFields();
-      if (categories.length > 0) {
+      const lastValues = getLastFormValues();
+      if (lastValues && mode === "create") {
+        form.setFields([
+          { name: "categoryId", value: lastValues.categoryId },
+          { name: "tag_ids", value: lastValues.tag_ids },
+          { name: "difficulty", value: lastValues.difficulty },
+        ]);
+      } else if (categories.length > 0) {
         form.setFieldValue("categoryId", categories[0].id);
       }
     }
@@ -126,8 +186,12 @@ export default function Questions() {
         ...values,
         content,
         category_id: values.categoryId,
-        status: values.status || "draft",
+        status: values.status || "published",
       };
+
+      if (modalMode === "create") {
+        saveFormValues(values);
+      }
 
       let res;
       if (modalMode === "edit" && currentQuestion) {
@@ -151,12 +215,20 @@ export default function Questions() {
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setShowEditor(false);
     setContent("");
     form.resetFields();
-    if (categories.length > 0) {
-      form.setFieldValue("categoryId", categories[0].id);
-    }
+    setCurrentQuestion(null);
+    setModalMode("create");
+    fetchQuestions(searchParams);
+  };
+
+  const handleTableChange = (newPagination: any) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
+    }));
   };
 
   const columns = [
@@ -187,108 +259,48 @@ export default function Questions() {
   ];
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={() => handleOpenModal("create")}>
-          新建题目
-        </Button>
-      </div>
-      <SearchForm onSearch={setSearchParams} />
-      <Table
-        columns={columns}
-        dataSource={questions}
-        rowKey="id"
-        loading={loading}
-      />
-      <Modal
-        title={`${
-          modalMode === "create"
-            ? "新建"
-            : modalMode === "edit"
-            ? "编辑"
-            : "查看"
-        }题目`}
-        open={isModalOpen}
-        onCancel={handleCloseModal}
-        maskClosable={false}
-        width={800}
-        footer={
-          modalMode !== "view" ? (
-            <Button type="primary" onClick={() => form.submit()}>
-              {modalMode === "edit" ? "更新" : "提交"}
+    <div id="questions-container">
+      {shouldInit && !showEditor ? (
+        <>
+          <div style={{ marginBottom: 16 }}>
+            <Button
+              type="primary"
+              onClick={() => handleOpenModal("create")}
+              disabled={loading}
+            >
+              新建题目
             </Button>
-          ) : null
-        }
-        bodyStyle={{
-          maxHeight: "calc(100vh - 200px)",
-          overflowY: "auto",
-          paddingRight: 16,
-        }}
-      >
-        <Form
-          form={form}
-          onFinish={handleSubmit}
-          layout="vertical"
-          disabled={modalMode === "view"}
-        >
-          <Form.Item
-            name="title"
-            label="标题"
-            rules={[{ required: true, message: "请输入标题" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="categoryId" label="分类">
-                <Select>
-                  {categories.map((category) => (
-                    <Select.Option key={category.id} value={category.id}>
-                      {category.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="tag_ids" label="标签">
-                <Select mode="multiple" placeholder="请选择标签">
-                  {tags.map((tag) => (
-                    <Select.Option key={tag.id} value={tag.id}>
-                      {tag.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="difficulty" label="难度">
-                <Select>
-                  <Select.Option value={1}>简单</Select.Option>
-                  <Select.Option value={2}>中等</Select.Option>
-                  <Select.Option value={3}>困难</Select.Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item name="status" label="状态" initialValue="draft">
-            <Radio.Group>
-              <Radio value="draft">草稿</Radio>
-              <Radio value="published">发布</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Form.Item label="内容" required>
-            <BytemdBaseCmp
-              value={content}
-              onChange={(value) => setContent(value)}
-              readonly={modalMode === "view"}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+          </div>
+          <SearchForm onSearch={setSearchParams} />
+          <Table
+            columns={columns}
+            dataSource={questions}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total) => `共 ${total} 条数据`,
+            }}
+            scroll={{ y: "calc(100vh - 400px)", x: "100%" }}
+            onChange={handleTableChange}
+          />
+        </>
+      ) : showEditor ? (
+        <QuestionEditor
+          mode={modalMode}
+          initialData={currentQuestion}
+          categories={categories}
+          tags={tags}
+          onCancel={handleCloseModal}
+          onSuccess={() => {
+            handleCloseModal();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

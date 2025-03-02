@@ -1,4 +1,4 @@
-import { Table, Button, Space, Modal, Form, Input, Tag as AntTag } from "antd";
+import { Table, Button, Space, Modal, Form, Input } from "antd";
 import { useState, useEffect } from "react";
 import {
   getAllTags,
@@ -15,9 +15,11 @@ export default function Tags() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [form] = Form.useForm();
+  const [shouldInit, setShouldInit] = useState(false);
 
-  // 获取所有标签
   const fetchTags = async () => {
+    if (!shouldInit) return;
+
     setLoading(true);
     try {
       const res = await getAllTags();
@@ -30,8 +32,31 @@ export default function Tags() {
   };
 
   useEffect(() => {
-    fetchTags();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldInit(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const element = document.getElementById("tags-container");
+    if (element) {
+      observer.observe(element);
+    }
+
+    return () => {
+      observer.disconnect();
+      setShouldInit(false);
+    };
   }, []);
+
+  useEffect(() => {
+    if (shouldInit) {
+      fetchTags();
+    }
+  }, [shouldInit]);
 
   // 打开编辑模态框
   const handleEdit = (tag: Tag) => {
@@ -70,16 +95,18 @@ export default function Tags() {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      let response;
+
       if (editingTag) {
         // 更新
-        const res = await updateTag(editingTag.id, values);
-        if (res.code === 200) {
+        response = await updateTag(editingTag.id, values);
+        if (response.code === 200) {
           openNotification("成功", "标签更新成功", "success");
         }
       } else {
         // 创建
-        const res = await createTag(values);
-        if (res.code === 200) {
+        response = await createTag(values);
+        if (response.code === 200) {
           openNotification("成功", "标签创建成功", "success");
         }
       }
@@ -90,32 +117,11 @@ export default function Tags() {
     }
   };
 
-  // 生成随机颜色
-  const getRandomColor = () => {
-    const colors = [
-      "magenta",
-      "red",
-      "volcano",
-      "orange",
-      "gold",
-      "lime",
-      "green",
-      "cyan",
-      "blue",
-      "geekblue",
-      "purple",
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
-
   const columns = [
     {
       title: "标签名称",
       dataIndex: "name",
       width: "25%",
-      render: (text: string) => (
-        <AntTag color={getRandomColor()}>{text}</AntTag>
-      ),
     },
     {
       title: "描述",
@@ -145,19 +151,21 @@ export default function Tags() {
   ];
 
   return (
-    <div>
+    <div id="tags-container">
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" onClick={handleAdd}>
           新建标签
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={tags}
-        rowKey="id"
-        loading={loading}
-      />
+      {shouldInit ? (
+        <Table
+          columns={columns}
+          dataSource={tags}
+          rowKey="id"
+          loading={loading}
+        />
+      ) : null}
 
       <Modal
         title={editingTag ? "编辑标签" : "新建标签"}

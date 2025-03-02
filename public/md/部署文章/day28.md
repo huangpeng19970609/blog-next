@@ -9,8 +9,6 @@ source /envs/nb/bin/activate
 pip install -r requirements.txt
 ```
 
-
-
 本地开发环境-生成requirements.txt
 
 ````cmd
@@ -58,8 +56,6 @@ http://1.13.189.249/home/lighthouse/static-uploads/202502/0031c7e0d53fd7a54cf590
 
 ### flask数据库更新
 
-
-
 1. 若是迁移 flask db migrate -m "更新数据库"
 
 2. 若是升级 flask db upgrade
@@ -74,6 +70,8 @@ migrate = Migrate(app, db)
 ## 配置安全组
 
 当购买成功且安装好操作系统之后，请先配置安全组
+
+
 
 ## 线上服务器
 
@@ -113,6 +111,8 @@ migrate = Migrate(app, db)
   	>>>拷贝公钥到代码仓库
   	>>>git clone git@gitee.com:wupeiqi/xxxxx.git
   ```
+
+
 
 ## mysql
 

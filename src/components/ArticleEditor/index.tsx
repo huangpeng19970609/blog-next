@@ -14,9 +14,16 @@ interface ArticleEditorProps {
   readonly?: boolean; // 是否为只读模式
   title?: string; // 文章标题
   value?: string; // 文章内容
-  onChange?: (value: { title: string; content: string }) => void; // 内容变更回调
+  onChange?: (value: {
+    title: string;
+    content: string;
+    coverUrl?: string;
+  }) => void; // 修改回调，包含封面URL
   onSuccess?: () => void; // 提交成功回调
   cover_url?: string; // 封面图片URL
+  isHiddenTitle?: boolean; // 新增属性
+  // 新增属性用于控制是否显示操作按钮
+  showActions?: boolean;
 }
 
 export default function ArticleEditor({
@@ -25,8 +32,9 @@ export default function ArticleEditor({
   title: propsTitle,
   value: propsValue,
   onChange,
-  onSuccess,
   cover_url,
+  isHiddenTitle = false, // 设置默认值
+  showActions = true, // 默认显示操作按钮
 }: ArticleEditorProps) {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState<string>(propsTitle || "");
@@ -71,7 +79,7 @@ export default function ArticleEditor({
     fetchArticle();
   }, [id]);
 
-  // 处理 Bytemd 编辑器的图片上传
+  // 移除提交文章的逻辑，只保留图片上传的通用功能
   const handleUpload = async (formData: FormData) => {
     return request({
       url: COMCOS.BaseURL + "/upload/image",
@@ -83,77 +91,6 @@ export default function ArticleEditor({
     });
   };
 
-  // 处理封面图片选择
-  const handleCoverSelect = (file: File) => {
-    if (!file) return false;
-
-    // 验证文件类型
-    const isImage = file.type.startsWith("image/");
-    if (!isImage) {
-      message.error("请上传图片文件");
-      return false;
-    }
-
-    setTempFile(file);
-    setCoverUrl(URL.createObjectURL(file));
-    return false; // 阻止 Upload 组件自动上传
-  };
-
-  // 提交文章
-  const handleSubmit = async () => {
-    if (!title.trim()) {
-      openNotification("请输入标题", "请输入标题", "error");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      let finalCoverUrl = coverUrl;
-
-      // 如果有新选择的图片，先上传图片
-      if (tempFile) {
-        const formData = new FormData();
-        formData.append("file", tempFile);
-
-        const uploadResponse = await request({
-          url: COMCOS.BaseURL + "/upload/image",
-          data: formData,
-          method: "post",
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        // 使用返回的 filename 作为 cover_url
-        finalCoverUrl = uploadResponse.data.url;
-      }
-
-      // 更新文章
-      if (id) {
-        await updateArticle({
-          id: id.toString(),
-          content: value,
-          title,
-          cover_url: finalCoverUrl,
-        });
-      }
-      // 新建
-      else {
-        await createArticle({
-          content: value,
-          title,
-        });
-      }
-
-      openNotification("提交成功", "提交成功", "success");
-      onSuccess?.();
-    } catch (error) {
-      openNotification("提交失败", "请稍后重试", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <Spin spinning={loading} tip="加载中..." style={{ width: "100%" }}>
       <motion.div
@@ -163,61 +100,50 @@ export default function ArticleEditor({
         transition={{ duration: 0.5 }}
         style={{ position: "relative", zIndex: 1 }}
       >
-        {/* 统一的标题容器 */}
-        <div className={styles.titleContainer}>
-          <div
-            className={styles.titleBackground}
-            style={{
-              backgroundImage: `url(${coverUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className={styles.titleContent}>
-            {readonly ? (
-              <h3 className={styles.readonlyTitle}>{title || "无标题"}</h3>
-            ) : (
-              <Input
-                value={title}
-                placeholder="请输入标题"
-                onChange={(e) => setTitle(e.target.value)}
-                className={styles.titleInput}
+        {/* 只在不隐藏标题时显示标题容器 */}
+        {!isHiddenTitle && (
+          <>
+            <div className={styles.titleContainer}>
+              <div
+                className={styles.titleBackground}
+                style={{
+                  backgroundImage: `url(${coverUrl})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
               />
-            )}
-          </div>
-        </div>
-        <Divider />
-        {/* 编辑模式操作按钮 */}
-        {!readonly && (
+              <div className={styles.titleContent}>
+                {readonly ? (
+                  <h3 className={styles.readonlyTitle}>{title || "无标题"}</h3>
+                ) : (
+                  <Input
+                    value={title}
+                    placeholder="请输入标题"
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      onChange?.({
+                        title: e.target.value,
+                        content: value,
+                        coverUrl,
+                      });
+                    }}
+                    className={styles.titleInput}
+                  />
+                )}
+              </div>
+            </div>
+            <Divider />
+          </>
+        )}
+        {/* 编辑模式操作按钮 - 只显示更换封面的功能 */}
+        {!readonly && showActions && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             style={{ display: "flex", gap: "8px", marginBottom: "16px" }}
           >
-            <Upload
-              accept="image/*"
-              showUploadList={false}
-              beforeUpload={handleCoverSelect}
-            >
-              <Button icon={<PlusOutlined />}>
-                {coverUrl ? "更换封面" : "上传封面"}
-              </Button>
-            </Upload>
-            {coverUrl && (
-              <img
-                src={coverUrl}
-                alt="封面预览"
-                style={{
-                  marginLeft: "16px",
-                  height: "32px",
-                  borderRadius: "4px",
-                }}
-              />
-            )}
-            <Button type="primary" onClick={handleSubmit}>
-              提交文章
-            </Button>
+            {/* 移除 Upload 和封面预览相关代码 */}
           </motion.div>
         )}
 
@@ -226,8 +152,10 @@ export default function ArticleEditor({
           value={value}
           onUpload={handleUpload}
           readonly={readonly}
-          isReadonly={readonly}
-          onChange={(value: string) => setValue(value)}
+          onChange={(newValue: string) => {
+            setValue(newValue);
+            onChange?.({ title, content: newValue, coverUrl });
+          }}
         />
       </motion.div>
     </Spin>

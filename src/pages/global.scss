@@ -107,3 +107,7 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #e6e6e6; /* 悬停状态下滑块背景颜色 */
 }
+
+.ant-tabs-content {
+  height: 100%;
+}

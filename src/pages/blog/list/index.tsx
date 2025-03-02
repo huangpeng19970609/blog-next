@@ -305,11 +305,6 @@ function List({ menuItems }: ListProps) {
         footer={null}
         width="80%"
         style={{ top: 20 }}
-        bodyStyle={{
-          maxHeight: "calc(100vh - 120px)", // 减去标题和padding的高度
-          overflow: "auto",
-          padding: "24px",
-        }}
         modalRender={(modal) => (
           <div style={{ maxHeight: "100vh" }}>{modal}</div>
         )}

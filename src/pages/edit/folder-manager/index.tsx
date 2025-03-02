@@ -9,6 +9,7 @@ import {
   Divider,
   Breadcrumb,
   Space,
+  Upload,
 } from "antd";
 import {
   FolderAddOutlined,
@@ -18,6 +19,7 @@ import {
   EditOutlined,
   EyeOutlined,
   CloseCircleOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -30,7 +32,11 @@ import {
 } from "@/request/folder/api";
 import { CSSProperties } from "react";
 import { motion } from "framer-motion";
-import { createArticle, deleteArticle } from "@/request/article/api";
+import {
+  createArticle,
+  deleteArticle,
+  updateArticle,
+} from "@/request/article/api";
 import { IArticle, NODE_TYPE } from "@/type/request.type";
 import moment from "moment";
 import { useRouter } from "next/router";
@@ -38,6 +44,7 @@ import ArticleEditor from "@/components/ArticleEditor";
 import { deleteFolder } from "@/request/folder/api";
 import styles from "./index.module.scss";
 import { openNotification } from "@/utils/message";
+import { request, COMCOS } from "@/request";
 
 // 添加文件夹接口定义
 interface Folder {
@@ -157,6 +164,18 @@ export default function FolderManager() {
       },
     },
   };
+
+  // 添加状态来存储当前编辑的文章数据
+  const [currentArticleData, setCurrentArticleData] = useState<{
+    title: string;
+    content: string;
+    coverUrl?: string;
+    coverFile?: File;
+  }>({
+    title: "",
+    content: "",
+    coverUrl: "",
+  });
 
   // 创建文件夹
   const handleAddFolder = async () => {
@@ -356,6 +375,83 @@ export default function FolderManager() {
     transition: "all 0.3s ease-in-out",
   };
 
+  // 修改处理封面图片选择的函数
+  const handleCoverSelect = async (file: File) => {
+    if (!file) return false;
+
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      openNotification("错误提示", "请上传图片文件", "error");
+      return false;
+    }
+
+    // 使用 FileReader 预览图片
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setCurrentArticleData((prev) => ({
+        ...prev,
+        coverUrl: e.target?.result as string,
+        coverFile: file, // 保存文件对象以供后续上传
+      }));
+    };
+    reader.readAsDataURL(file);
+
+    return false;
+  };
+
+  // 修改提交处理函数
+  const handleArticleSubmit = async () => {
+    if (!currentArticleData.title.trim()) {
+      openNotification("错误提示", "标题不能为空", "error");
+      return;
+    }
+
+    try {
+      let coverUrl = currentArticleData.coverUrl;
+
+      // 如果有新的封面文件，先上传
+      if (currentArticleData.coverFile) {
+        const formData = new FormData();
+        formData.append("file", currentArticleData.coverFile);
+
+        const uploadResponse = await request({
+          url: COMCOS.BaseURL + "/upload/image",
+          data: formData,
+          method: "post",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (uploadResponse.code === 200) {
+          coverUrl = uploadResponse.data.url;
+        } else {
+          openNotification(
+            "封面上传失败",
+            uploadResponse.message || "请稍后重试",
+            "error"
+          );
+          return;
+        }
+      }
+
+      // 更新文章
+      if (editingArticle.id) {
+        await updateArticle({
+          id: editingArticle.id.toString(),
+          content: currentArticleData.content,
+          title: currentArticleData.title,
+          cover_url: coverUrl,
+        });
+      }
+
+      openNotification("提交成功", "文章已保存", "success");
+      handleBackToList();
+    } catch (error) {
+      openNotification("提交失败", "请稍后重试", "error");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div style={{ padding: "0px", height: "100%" }}>
@@ -401,18 +497,63 @@ export default function FolderManager() {
 
         {editingArticle.visible ? (
           <div>
-            <Button
-              type="link"
-              icon={<CloseCircleOutlined />}
-              onClick={handleBackToList}
-              style={{ marginBottom: 16 }}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 16,
+              }}
             >
-              返回列表
-            </Button>
-            {/* 编辑文章入口 */}
+              <Button
+                type="link"
+                icon={<CloseCircleOutlined />}
+                onClick={handleBackToList}
+              >
+                返回列表
+              </Button>
+              <div>
+                <Upload
+                  accept="image/*"
+                  showUploadList={false}
+                  beforeUpload={handleCoverSelect}
+                  style={{ marginRight: 16 }}
+                >
+                  <Button icon={<PlusOutlined />}>
+                    {currentArticleData.coverUrl ? "更换封面" : "上传封面"}
+                  </Button>
+                </Upload>
+                <Button
+                  type="primary"
+                  onClick={() => handleArticleSubmit()}
+                  style={{ marginLeft: 8 }}
+                >
+                  提交文章
+                </Button>
+              </div>
+            </div>
+            {currentArticleData.coverUrl && (
+              <div style={{ marginBottom: 16 }}>
+                <img
+                  src={currentArticleData.coverUrl}
+                  alt="封面预览"
+                  style={{
+                    height: "100px",
+                    borderRadius: "4px",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+            )}
             <ArticleEditor
               id={editingArticle.id?.toString()}
               readonly={false}
+              onChange={(data) => {
+                setCurrentArticleData((prev) => ({
+                  ...prev,
+                  title: data.title,
+                  content: data.content,
+                }));
+              }}
             />
           </div>
         ) : (
@@ -453,7 +594,6 @@ export default function FolderManager() {
                           cursor: "pointer",
                           position: "relative",
                         }}
-                        bodyStyle={{ padding: "16px" }}
                         onClick={() => handleFolderClick(folder)}
                       >
                         <Space className={styles.folderIcons}>

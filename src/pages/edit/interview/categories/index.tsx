@@ -19,14 +19,11 @@ export default function Categories() {
   // 获取所有类别
   const fetchCategories = async () => {
     setLoading(true);
-    try {
-      const res = await getAllCategories();
-      if (res.code === 200) {
-        setCategories(res.data);
-      }
-    } finally {
-      setLoading(false);
+    const res = await getAllCategories();
+    if (res.code === 200) {
+      setCategories(res.data);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -51,20 +48,14 @@ export default function Categories() {
   const handleDelete = async (id: number) => {
     Modal.confirm({
       title: "确认删除",
-      content: "删除类别可能会影响相关题目,是否继续?",
+      content: "删除分类将会解除与所有题目的关联,是否继续?",
       onOk: async () => {
-        try {
-          const res = await deleteCategory(id);
-          if (res.code === 200) {
-            openNotification("成功", "类别删除成功", "success");
-            fetchCategories();
-          }
-        } catch (error) {
-          openNotification(
-            "错误",
-            "删除失败,请确保没有题目使用此类别",
-            "error"
-          );
+        const res = await deleteCategory(id);
+        if (res.code === 200) {
+          openNotification("成功", "分类删除成功", "success");
+          fetchCategories();
+        } else {
+          openNotification("错误", "删除失败", "error");
         }
       },
     });
@@ -72,33 +63,31 @@ export default function Categories() {
 
   // 提交表单
   const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-      if (editingCategory) {
-        // 更新
-        const res = await updateCategory(editingCategory.id, values);
-        if (res.code === 200) {
-          openNotification("成功", "类别更新成功", "success");
-        }
-      } else {
-        // 创建
-        const res = await createCategory(values);
-        if (res.code === 200) {
-          openNotification("成功", "类别创建成功", "success");
-        }
+    const values = await form.validateFields();
+    let response;
+
+    if (editingCategory) {
+      // 更新
+      response = await updateCategory(editingCategory.id, values);
+      if (response.code === 200) {
+        openNotification("成功", "分类更新成功", "success");
       }
-      setModalVisible(false);
-      fetchCategories();
-    } catch (error) {
-      console.error("表单验证失败:", error);
+    } else {
+      // 创建
+      response = await createCategory(values);
+      if (response.code === 200) {
+        openNotification("成功", "分类创建成功", "success");
+      }
     }
+    setModalVisible(false);
+    fetchCategories();
   };
 
   const columns = [
     {
-      title: "名称",
+      title: "分类名称",
       dataIndex: "name",
-      width: "30%",
+      width: "25%",
     },
     {
       title: "描述",
@@ -131,7 +120,7 @@ export default function Categories() {
     <div>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" onClick={handleAdd}>
-          新建类别
+          新建分类
         </Button>
       </div>
 
@@ -143,7 +132,7 @@ export default function Categories() {
       />
 
       <Modal
-        title={editingCategory ? "编辑类别" : "新建类别"}
+        title={editingCategory ? "编辑分类" : "新建分类"}
         open={modalVisible}
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
@@ -152,13 +141,13 @@ export default function Categories() {
         <Form form={form} layout="vertical">
           <Form.Item
             name="name"
-            label="类别名称"
-            rules={[{ required: true, message: "请输入类别名称" }]}
+            label="分类名称"
+            rules={[{ required: true, message: "请输入分类名称" }]}
           >
-            <Input placeholder="请输入类别名称" />
+            <Input placeholder="请输入分类名称" />
           </Form.Item>
-          <Form.Item name="description" label="类别描述">
-            <Input placeholder="请输入类别描述" />
+          <Form.Item name="description" label="分类描述">
+            <Input.TextArea placeholder="请输入分类描述" rows={4} />
           </Form.Item>
         </Form>
       </Modal>

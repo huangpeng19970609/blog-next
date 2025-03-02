@@ -137,6 +137,7 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
   const [doms, setDoms] = useState<ReactElement>();
   const treeArray = useRef<any[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [hasToc, setHasToc] = useState(false);
 
   useEffect(() => {
     updateTocTree(props.value);
@@ -184,8 +185,10 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
     if (treeArray.current.length) {
       const childrenDoms = getChildren(treeArray.current, handleTocClick);
       setDoms(childrenDoms);
+      setHasToc(true);
     } else {
       setDoms(<></>);
+      setHasToc(false);
     }
   };
 
@@ -193,6 +196,75 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
     return (
       <div className={styles.mdViewer} id="md-content">
         <Viewer value={props.value} plugins={plugins} />
+        {hasToc && (
+          <div
+            className={`${styles.fixed} ${isCollapsed ? styles.collapsed : ""}`}
+          >
+            <div
+              className={styles["collapse-btn"]}
+              onClick={() => setIsCollapsed(!isCollapsed)}
+            >
+              {isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            </div>
+            {!isCollapsed && doms}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const onChange = (v: string) => {
+    updateTocTree(v);
+    props.onChange(v);
+  };
+
+  return (
+    <div className={styles["article-base-container"]}>
+      <div id="md-content">
+        <Editor
+          locale={zhHans}
+          plugins={plugins}
+          value={props.value}
+          onChange={onChange}
+          uploadImages={async (files: File[]) => {
+            if (!props.onUpload) {
+              notification.error({
+                message: "未配置图片上传功能",
+              });
+              return [];
+            }
+
+            const results = await Promise.all(
+              files.map(async (file) => {
+                const formData = new FormData();
+                formData.append("file", file);
+                const response = await props.onUpload(formData);
+
+                debugger;
+
+                if (response.code === 200) {
+                  notification.success({
+                    message: "图片上传成功",
+                  });
+                  const data = response.data;
+                  return {
+                    title: data.filename,
+                    url: COMCOS.UploadImagePrefix + data.url,
+                  };
+                } else {
+                  notification.error({
+                    message: response.message || "图片上传失败",
+                  });
+                  return null;
+                }
+              })
+            );
+
+            return results.filter(Boolean);
+          }}
+        />
+      </div>
+      {hasToc && (
         <div
           className={`${styles.fixed} ${isCollapsed ? styles.collapsed : ""}`}
         >
@@ -204,77 +276,8 @@ const BytemdEditor: React.FC<EditorProps> = (props) => {
           </div>
           {!isCollapsed && doms}
         </div>
-      </div>
-    );
-  }
-
-  const onChange = (v: string) => {
-    updateTocTree(v);
-    props.onChange(v);
-  };
-
-  return (
-    <>
-      <div className={styles["article-base-container"]}>
-        <Divider />
-        <div id="md-content">
-          <Editor
-            locale={zhHans}
-            plugins={plugins}
-            value={props.value}
-            onChange={onChange}
-            uploadImages={async (files: File[]) => {
-              if (!props.onUpload) {
-                notification.error({
-                  message: "未配置图片上传功能",
-                });
-                return [];
-              }
-
-              const results = await Promise.all(
-                files.map(async (file) => {
-                  const formData = new FormData();
-                  formData.append("file", file);
-                  const response = await props.onUpload(formData);
-
-                  if (response.code === 200) {
-                    notification.success({
-                      message: "图片上传失败",
-                    });
-                    const data = response.data;
-                    return {
-                      title: data.filename,
-                      url: COMCOS.UploadImagePrefix + data.url,
-                    };
-                  } else {
-                    notification.error({
-                      message: response.message || "图片上传失败",
-                    });
-                    return null;
-                  }
-                })
-              );
-
-              return results.filter(Boolean);
-              notification.error({
-                message: "图片上传出错",
-                description: error.message,
-              });
-              return [];
-            }}
-          />
-        </div>
-      </div>
-      <div className={`${styles.fixed} ${isCollapsed ? styles.collapsed : ""}`}>
-        <div
-          className={styles["collapse-btn"]}
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          {isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </div>
-        {!isCollapsed && doms}
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 
