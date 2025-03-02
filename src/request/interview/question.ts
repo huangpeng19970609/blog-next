@@ -8,12 +8,13 @@ import {
   QuestionQueryParams,
   BaseResponse,
   PaginatedResponse,
+  CategoryQuestions,
 } from "@/type/request.interview";
 
 // 获取问题列表
 export function getQuestionList(params: QuestionQueryParams = {}) {
   return request<BaseResponse<PaginatedResponse<Question>>>({
-    url: COMCOS.BaseURL + "/questions/list",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/questions/list",
     method: "GET",
     params,
   });
@@ -22,7 +23,7 @@ export function getQuestionList(params: QuestionQueryParams = {}) {
 // 获取问题详情
 export function getQuestionDetail(id: number) {
   return request<BaseResponse<Question>>({
-    url: COMCOS.BaseURL + `/questions/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/questions/${id}`,
     method: "GET",
   });
 }
@@ -35,7 +36,7 @@ export function createQuestion(data: CreateQuestionRequest) {
   }
 
   return request<BaseResponse<Question>>({
-    url: COMCOS.BaseURL + "/questions/create",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/questions/create",
     method: "POST",
     data,
   });
@@ -44,7 +45,7 @@ export function createQuestion(data: CreateQuestionRequest) {
 // 更新问题
 export function updateQuestion(id: number, data: UpdateQuestionRequest) {
   return request<BaseResponse<Question>>({
-    url: COMCOS.BaseURL + `/questions/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/questions/${id}`,
     method: "PUT",
     data,
   });
@@ -53,7 +54,7 @@ export function updateQuestion(id: number, data: UpdateQuestionRequest) {
 // 删除问题
 export function deleteQuestion(id: number) {
   return request<BaseResponse<null>>({
-    url: COMCOS.BaseURL + `/questions/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/questions/${id}`,
     method: "DELETE",
   });
 }
@@ -61,7 +62,15 @@ export function deleteQuestion(id: number) {
 // 点赞问题
 export function likeQuestion(id: number) {
   return request<BaseResponse<{ like_count: number }>>({
-    url: COMCOS.BaseURL + `/questions/${id}/like`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/questions/${id}/like`,
     method: "POST",
+  });
+}
+
+// 获取按分类组织的问题列表
+export function getQuestionsByCategory() {
+  return request<BaseResponse<CategoryQuestions[]>>({
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/questions/list/by-category",
+    method: "GET",
   });
 }

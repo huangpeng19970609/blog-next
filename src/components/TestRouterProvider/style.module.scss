@@ -1,6 +1,7 @@
 .layout {
   display: flex;
-  min-height: calc(100vh - 64px); // 减去头部高度
+  height: 100%;
+  width: 100%;
 
   .sider {
     width: 200px;

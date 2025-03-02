@@ -30,9 +30,9 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
     document.body.style.overflow = "hidden";
 
     getLatestArticle().then((res) => {
-      const lists = res.data.map((item, index) => ({
+      const lists = res.data.map((item) => ({
         id: item.id + "",
-        url: item.cover_url || "/images/home/" + (index + 1) + ".png",
+        url: item.cover_url || "/images/default.png",
         title: item.title,
         description: item.content.slice(0, 15),
       }));
@@ -59,7 +59,7 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   const handleGoToArticle = () => {
     const id = slides[activeIndex]?.id;
     if (id) {
-      router.push(`/edit/article-detail/${id}`);
+      router.push(`/article-detail/${id}`);
     }
   };
 

@@ -19,7 +19,8 @@ const breakpointColumnsObj = {
 
 function List() {
   const router = useRouter();
-  // 状态管理：文章列表、加载状态、当前页码和是否有更多数据
+  // 添加新的状态来追踪是否已显示过提示
+  const [hasShownNoMoreMessage, setHasShownNoMoreMessage] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -101,13 +102,14 @@ function List() {
       fetchArticles(page);
     }
 
-    if (!hasMore) {
+    if (!hasMore && !hasShownNoMoreMessage) {
       openNotification("没有更多数据", "没有更多数据", "error");
+      setHasShownNoMoreMessage(true);
     }
-  }, [inView, hasMore, page, fetchArticles, loading]);
+  }, [inView, hasMore, page, fetchArticles, loading, hasShownNoMoreMessage]);
 
   const handleArticleClick = (article: Article) => {
-    router.push(`/edit/article-detail/${article.id}`);
+    router.push(`/article-detail/${article.id}`);
   };
 
   const handleModalClose = () => {

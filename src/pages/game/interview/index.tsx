@@ -1,73 +1,167 @@
 import BackButton from "@/components/back-button";
-import React, { useState } from "react";
-import { List } from "antd";
+import React, { useState, useEffect } from "react";
+import { Tree, Typography, Button, Divider } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import styles from "./index.module.scss";
+import { getQuestionsByCategory } from "@/request/interview";
+import type { CategoryQuestions } from "@/type/request.interview";
+import type { DataNode } from "antd/es/tree";
+import { DownOutlined } from "@ant-design/icons";
 
-// 模拟数据
-const mockInterviews = [
-  {
-    id: 1,
-    title: "什么是React的虚拟DOM？",
-    content:
-      "虚拟DOM是React的一个核心概念，它是真实DOM的JavaScript对象表示。React通过比较虚拟DOM的差异来最小化实际DOM操作，从而提高性能。",
-  },
-  {
-    id: 2,
-    title: "请解释React中的状态提升",
-    content:
-      "状态提升是指将多个组件共用的状态提升到它们最近的共同父组件中。这样可以确保数据的一致性，并使组件之间的数据流更加清晰。",
-  },
-  {
-    id: 3,
-    title: "什么是Next.js的SSR？",
-    content:
-      "SSR（服务器端渲染）是Next.js的一个重要特性，它允许在服务器端预渲染页面，提供更好的首屏加载性能和SEO优化。",
-  },
-];
+const { Title, Text } = Typography;
+
+const difficultyColors = {
+  1: "#52c41a", // 简单 - 绿色
+  2: "#faad14", // 中等 - 黄色
+  3: "#ff4d4f", // 困难 - 红色
+};
 
 export default function Interview() {
-  const [selectedInterview, setSelectedInterview] = useState<
-    (typeof mockInterviews)[0] | null
-  >(null);
+  const [categoryQuestions, setCategoryQuestions] = useState<
+    CategoryQuestions[]
+  >([]);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
   const [showAnswer, setShowAnswer] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [defaultSelectedKeys, setDefaultSelectedKeys] = useState<string[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      setLoading(true);
+      try {
+        const res = await getQuestionsByCategory();
+        if (res.code === 200) {
+          setCategoryQuestions(res.data);
+          if (res.data.length > 0 && res.data[0].questions.length > 0) {
+            const firstQuestion = res.data[0].questions[0];
+            setSelectedQuestion(firstQuestion);
+            setShowAnswer(false);
+            setDefaultSelectedKeys([`question-${firstQuestion.id}`]);
+            setExpandedKeys([`category-${res.data[0].category.id}`]);
+          }
+        }
+      } catch (error) {
+        console.error("获取题目列表失败:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  // 转换数据为Tree所需的格式
+  const treeData: DataNode[] = categoryQuestions.map((category) => ({
+    key: `category-${category.category.id}`,
+    title: category.category.name,
+    children: category.questions.map((question, questionIndex) => ({
+      key: `question-${question.id}`,
+      title: `${questionIndex + 1}. ${question.title}`,
+      isLeaf: true,
+      question: question,
+    })),
+  }));
 
   return (
     <div className={styles.container}>
       <div className={styles.left}>
-        <List
-          dataSource={mockInterviews}
-          renderItem={(item) => (
-            <List.Item
-              onClick={() => {
-                setSelectedInterview(item);
-                setShowAnswer(false);
-              }}
-              className={
-                selectedInterview?.id === item.id ? styles.selected : ""
-              }
-            >
-              <div className={styles.listItem}>{item.title}</div>
-            </List.Item>
-          )}
+        <Tree
+          loading={loading}
+          treeData={treeData}
+          showLine
+          switcherIcon={<DownOutlined />}
+          defaultSelectedKeys={defaultSelectedKeys}
+          expandedKeys={expandedKeys}
+          onExpand={(newExpandedKeys) => setExpandedKeys(newExpandedKeys)}
+          onSelect={(_, info) => {
+            const node = info.node as any;
+            if (node.question) {
+              setSelectedQuestion(node.question);
+              setShowAnswer(false);
+            }
+          }}
         />
       </div>
       <div className={styles.right}>
         <BackButton />
-        {selectedInterview && (
-          <div className={styles.content}>
-            <h2>{selectedInterview.title}</h2>
-            <div
-              className={styles.answer}
-              onClick={() => setShowAnswer(true)}
-              style={{
-                filter: showAnswer ? "none" : "blur(5px)",
-                cursor: showAnswer ? "default" : "pointer",
-              }}
+        <AnimatePresence mode="wait">
+          {selectedQuestion ? (
+            <motion.div
+              key={selectedQuestion.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className={styles.content}
             >
-              {selectedInterview.content}
-            </div>
-          </div>
-        )}
+              <Title level={2}>
+                {selectedQuestion.category.name} - {selectedQuestion.title}
+              </Title>
+              <div className={styles.questionMeta}>
+                <Text>
+                  难度：
+                  <Text
+                    style={{
+                      color: difficultyColors[selectedQuestion.difficulty],
+                    }}
+                  >
+                    {["简单", "中等", "困难"][selectedQuestion.difficulty - 1]}
+                  </Text>
+                </Text>
+                <Divider type="vertical" />
+                {selectedQuestion.tags.length > 0 && (
+                  <Text>
+                    标签：
+                    {selectedQuestion.tags.map((tag, index) => (
+                      <React.Fragment key={tag.name}>
+                        <Text className={styles.tag}>{tag.name}</Text>
+                        {index < selectedQuestion.tags.length - 1 && ", "}
+                      </React.Fragment>
+                    ))}
+                  </Text>
+                )}
+              </div>
+              <Divider />
+              <div className={styles.answerContainer}>
+                <div className={styles.answerHeader}>
+                  <Text strong>题目内容</Text>
+                  <Button
+                    type="text"
+                    icon={
+                      showAnswer ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                    }
+                    onClick={() => setShowAnswer(!showAnswer)}
+                  >
+                    {showAnswer ? "隐藏答案" : "查看答案"}
+                  </Button>
+                </div>
+                <motion.div
+                  className={styles.answer}
+                  onClick={() => setShowAnswer(true)}
+                  style={{ cursor: "pointer" }}
+                  animate={{
+                    filter: showAnswer ? "blur(0px)" : "blur(5px)",
+                    transition: { duration: 0.3 },
+                  }}
+                >
+                  {selectedQuestion.content}
+                </motion.div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={styles.placeholder}
+            >
+              <Text type="secondary">👈 请从左侧选择一道面试题</Text>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

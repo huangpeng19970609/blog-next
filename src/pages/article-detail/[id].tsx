@@ -44,11 +44,13 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
   }
 
   return (
-    <ArticleEditor
-      title={title}
-      value={content}
-      cover_url={cover_url}
-      readonly={true}
-    />
+    <div style={{ width: "100%", height: "100%" }}>
+      <ArticleEditor
+        title={title}
+        value={content}
+        cover_url={cover_url}
+        readonly={true}
+      />
+    </div>
   );
 }

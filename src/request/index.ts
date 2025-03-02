@@ -6,6 +6,7 @@ import { CONFIG } from "@/config";
 const COMCOS = {
   BaseURL: "/api",
   UploadImagePrefix: "",
+  InterViewPre: "/interview", // 新增这一行
 };
 
 // 定义成功响应数据的接口

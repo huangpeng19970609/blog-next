@@ -81,10 +81,18 @@ export interface UpdateQuestionRequest {
   tag_ids?: number[];
 }
 
+// 新增分类题目列表接口
+export interface CategoryQuestions {
+  category: Category;
+  questions: Question[];
+}
+
+// 修改 QuestionQueryParams，添加新的可选参数
 export interface QuestionQueryParams {
   page?: number;
   per_page?: number;
   category_id?: number;
   difficulty?: number;
   tag_id?: number;
+  status?: "draft" | "published";
 }

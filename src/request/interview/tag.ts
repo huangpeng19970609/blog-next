@@ -11,7 +11,7 @@ import {
 // 获取所有标签
 export function getAllTags() {
   return request<BaseResponse<Tag[]>>({
-    url: COMCOS.BaseURL + "/tags/list",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/tags/list",
     method: "GET",
   });
 }
@@ -24,7 +24,7 @@ export function createTag(data: CreateTagRequest) {
   }
 
   return request<BaseResponse<Tag>>({
-    url: COMCOS.BaseURL + "/tags/create",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/tags/create",
     method: "POST",
     data,
   });
@@ -38,7 +38,7 @@ export function batchCreateTags(data: BatchCreateTagsRequest) {
   }
 
   return request<BaseResponse<Tag[]>>({
-    url: COMCOS.BaseURL + "/tags/batch-create",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/tags/batch-create",
     method: "POST",
     data,
   });
@@ -47,7 +47,7 @@ export function batchCreateTags(data: BatchCreateTagsRequest) {
 // 更新标签
 export function updateTag(id: number, data: Partial<CreateTagRequest>) {
   return request<BaseResponse<Tag>>({
-    url: COMCOS.BaseURL + `/tags/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/tags/${id}`,
     method: "PUT",
     data,
   });
@@ -56,7 +56,7 @@ export function updateTag(id: number, data: Partial<CreateTagRequest>) {
 // 删除标签
 export function deleteTag(id: number) {
   return request<BaseResponse<null>>({
-    url: COMCOS.BaseURL + `/tags/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/tags/${id}`,
     method: "DELETE",
   });
 }

@@ -10,7 +10,7 @@ import {
 // 获取所有分类
 export function getAllCategories() {
   return request<BaseResponse<Category[]>>({
-    url: COMCOS.BaseURL + "/categories/list",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/categories/list",
     method: "GET",
   });
 }
@@ -23,7 +23,7 @@ export function createCategory(data: CreateCategoryRequest) {
   }
 
   return request<BaseResponse<Category>>({
-    url: COMCOS.BaseURL + "/categories/create",
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + "/categories/create",
     method: "POST",
     data,
   });
@@ -35,7 +35,7 @@ export function updateCategory(
   data: Partial<CreateCategoryRequest>
 ) {
   return request<BaseResponse<Category>>({
-    url: COMCOS.BaseURL + `/categories/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/categories/${id}`,
     method: "PUT",
     data,
   });
@@ -44,7 +44,7 @@ export function updateCategory(
 // 删除分类
 export function deleteCategory(id: number) {
   return request<BaseResponse<null>>({
-    url: COMCOS.BaseURL + `/categories/${id}`,
+    url: COMCOS.BaseURL + COMCOS.InterViewPre + `/categories/${id}`,
     method: "DELETE",
   });
 }

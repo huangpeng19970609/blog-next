@@ -15,26 +15,56 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import RouterProvider from "@/components/RouterProvider";
 import { StyleProvider } from "@ant-design/cssinjs";
 import { useRouter } from "next/router";
+import { Spin } from "antd";
+import { useState, useEffect } from "react";
 
 import "@/pages-utils";
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleStart = () => setLoading(true);
+    const handleComplete = () => setLoading(false);
+
+    router.events.on("routeChangeStart", handleStart);
+    router.events.on("routeChangeComplete", handleComplete);
+    router.events.on("routeChangeError", handleComplete);
+
+    return () => {
+      router.events.off("routeChangeStart", handleStart);
+      router.events.off("routeChangeComplete", handleComplete);
+      router.events.off("routeChangeError", handleComplete);
+    };
+  }, [router]);
+
   return (
     <div className={styles["bg-color"]}>
       <StyleProvider hashPriority="high">
         <Header />
         <AntdRegistry>
-          <AnimatePresence>
-            <motion.div
-              key={router.pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+          <div
+            style={{
+              width: "100%",
+              height: "calc(100% - 90px)",
+              position: "relative",
+            }}
+          >
+            <Spin
+              spinning={loading}
+              size="large"
+              style={{
+                maxHeight: "100%",
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
             >
               <RouterProvider Component={Component} pageProps={pageProps} />
-            </motion.div>
-          </AnimatePresence>
+            </Spin>
+          </div>
         </AntdRegistry>
       </StyleProvider>
     </div>
