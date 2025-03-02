@@ -254,7 +254,7 @@ export default function Questions() {
           />
         </>
       ) : showEditor ? (
-        <div style={{ height: "800px" }}>
+        <div>
           <QuestionEditor
             mode={modalMode}
             initialData={currentQuestion}

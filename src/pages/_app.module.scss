@@ -1,3 +1,17 @@
 .bg-color {
   background-color:  var(--main-bg-color);
 }
+.app-container {
+  overflow-y: scroll;
+  height: 100%;
+}
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--hp-line-color);
+  z-index: 100;
+  transform-origin: 0%;
+}

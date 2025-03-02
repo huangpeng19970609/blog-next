@@ -1,5 +1,6 @@
 .left, .right {
   height: 100%;
+  width: 100%;
 }
 .padding {
   background: var(--hp-line-color); 
@@ -22,8 +23,7 @@
   display: flex;
   margin-top: 150px;
   // header 高度 + padding高度 一共为 90 + 150
-  height: calc(100% - 150px - 90px);
-  overflow: hidden;
+  height: calc(100vh - 90px);
 }
 
 // 右侧区域
@@ -67,7 +67,6 @@
     pointer-events: auto;
     display: block;
     -webkit-box-orient: vertical;
-    overflow: hidden;
     color: var(--font-color);
   }
 }

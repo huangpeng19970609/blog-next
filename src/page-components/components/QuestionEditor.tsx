@@ -102,7 +102,7 @@ export default function QuestionEditor({
   };
 
   return (
-    <div style={{ height: "450px" }}>
+    <div>
       <Space style={{ marginBottom: 16 }}>
         <Button onClick={onCancel}>返回</Button>
         {mode !== "view" && (
@@ -187,7 +187,7 @@ export default function QuestionEditor({
         </Form.Item>
       </Form>
 
-      <div style={{ height: "400px" }}>
+      <div>
         <ArticleEditor
           isHiddenTitle={true}
           value={content}

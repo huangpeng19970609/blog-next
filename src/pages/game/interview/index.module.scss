@@ -4,22 +4,23 @@
 
 .container {
   display: flex;
-  height: 100%;
+  height: calc(100vh - 90px); /* 减去header高度 */
   background-color: var(--color-bg-1);
   border-radius: 10px;
-  overflow: hidden;
   
   .left {
-    width: 20%;
+    position: fixed;
+    top: 90px; /* Header高度 */
+    bottom: 0;
+    width: 22%;
     overflow-y: auto;
     background-color: #fff;
     border-radius: 10px;
     margin-left: 10px;
-    min-height: calc(100% - 10px);
-
-    // 可能出现滚动条，需要设置 z-index 为 1
-    position: relative;
+    
     z-index: 1;
+    display: flex;
+    flex-direction: column;
 
     :global(.ant-list-item) {
       border-bottom: none;
@@ -41,14 +42,15 @@
   }
   
   .right {
-    width: 78%;
+    margin-left: calc(22% + 20px); /* 左侧宽度 + 间距 */
+    width: calc(78% - 20px);
     display: flex;
     flex-direction: column;
     flex: 1;
     padding: 20px;
-    margin-left: 10px;
     background-color: #fff;
     border-radius: 10px;
+    overflow-y: auto;
     
     .title {
       font-size: 24px;
@@ -56,7 +58,6 @@
     }
     
     .content {
-      height: 100%;
       display: flex;
       flex-direction: column;
       h2 {
@@ -65,7 +66,6 @@
       
       .answer {
         transition: all 0.3s ease;
-        height: 500px;
         &:hover {
           background-color: #e6e6e6;
         }
@@ -145,8 +145,6 @@
 }
 
 .navigationHeader {
-  position: sticky;
-  top: 0;
   background: white;
   z-index: 1;
   padding: 16px 0;

@@ -2,13 +2,11 @@
   // 设置基础容器样式
   position: relative;
   width: 100%;
-  height: 100%;
   box-sizing: border-box;
 
   // 编辑器区域样式
   :global {
     .bytemd {
-      height: 100%;
 
       border: 1px solid #e8e8e8;
       border-radius: 4px;
@@ -22,7 +20,6 @@
       // 编辑区域样式
       .bytemd-editor {
         .CodeMirror {
-          height: 100%;
           font-size: 14px;
           line-height: 1.6;
           padding: 12px;
@@ -63,9 +60,6 @@
     }
   }
 
-  > div {
-    height: 100%;
-  }
 }
 
 // 右侧目录导航样式
@@ -241,6 +235,5 @@
 .mdViewer {
   padding: 0px;
   min-height: calc(100% - 10px);
-  overflow-y: scroll;
   width: 100%;
 }

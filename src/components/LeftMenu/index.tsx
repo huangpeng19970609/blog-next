@@ -6,11 +6,6 @@
  */
 import React, { ReactElement, useState, useEffect } from "react";
 import styles from "./index.module.scss";
-import {
-  AppstoreOutlined,
-  MailOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
 import { ISetState } from "@/type/react.type";
@@ -26,7 +21,8 @@ function LeftMenu(props: {
   defaultSelectedKey?: string;
   defaultOpenKeys?: string[];
 }): ReactElement {
-  const { folderList, setActiveMenuKey, defaultSelectedKey, defaultOpenKeys } = props;
+  const { folderList, setActiveMenuKey, defaultSelectedKey, defaultOpenKeys } =
+    props;
 
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys || []);
 
@@ -65,7 +61,7 @@ function LeftMenu(props: {
 
   useEffect(() => {
     if (defaultOpenKeys && defaultOpenKeys.length > 0) {
-      console.log('Updating openKeys with:', defaultOpenKeys); 
+      console.log("Updating openKeys with:", defaultOpenKeys);
       setOpenKeys(defaultOpenKeys);
     }
   }, [defaultOpenKeys]);
@@ -74,7 +70,7 @@ function LeftMenu(props: {
     <div className={styles["hp-menu"]}>
       <Menu
         onClick={onClick}
-        selectedKeys={[defaultSelectedKey || '']}  
+        selectedKeys={[defaultSelectedKey || ""]}
         openKeys={openKeys}
         onOpenChange={onOpenChange}
         mode="inline"

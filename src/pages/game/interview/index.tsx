@@ -218,7 +218,6 @@ export default function Interview() {
           <BackButton />
         </div>
         <Tree
-          loading={loading}
           treeData={getTreeData()}
           showLine
           switcherIcon={<DownOutlined />}
@@ -251,7 +250,6 @@ export default function Interview() {
                 description: q.category.name,
               }))}
               style={{
-                margin: "20px 0",
                 padding: "0 20px",
               }}
               onChange={(current) => {
@@ -275,7 +273,6 @@ export default function Interview() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
               className={styles.content}
-              style={{ height: "100%" }}
             >
               <Title level={2}>
                 {selectedQuestion.category.name} - {selectedQuestion.title}

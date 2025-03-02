@@ -23,6 +23,8 @@ import "@/pages-utils";
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const isHomePage = router.pathname === "/home";
 
   useEffect(() => {
     const handleStart = () => setLoading(true);
@@ -39,18 +41,38 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     };
   }, [router]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      // 计算滚动进度
+      const totalHeight =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      const scrollPosition = window.scrollY;
+      const progress = (scrollPosition / totalHeight) * 100;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className={styles["bg-color"]}>
+      <motion.div
+        className={styles["scroll-progress"]}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          transformOrigin: "0%",
+        }}
+        animate={{ scaleX: scrollProgress / 100 }}
+      />
       <StyleProvider hashPriority="high">
         <Header />
         <AntdRegistry>
-          <div
-            style={{
-              width: "100%",
-              height: "calc(100% - 90px)",
-              position: "relative",
-            }}
-          >
+          <div className={isHomePage ? "" : styles["app-container"]}>
             <Spin
               spinning={loading}
               size="large"

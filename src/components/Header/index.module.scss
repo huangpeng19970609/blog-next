@@ -9,6 +9,10 @@
   padding-left: 20px;
   justify-content: space-between;
   padding: 0 20px;
+  position: sticky;
+  top: 3px;
+  z-index: 1;
+  background-color: var(--main-bg-color);
 }
 .font-style {
   font-family: silka_rm, sans-serif;
