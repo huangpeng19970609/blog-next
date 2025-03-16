@@ -25,7 +25,7 @@ const routes: RouteConfig[] = [
   },
   {
     path: "/game",
-    title: "游戏",
+    title: "模块中心",
   },
   {
     path: "/edit",

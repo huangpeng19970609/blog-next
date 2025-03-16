@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-
 const nextConfig = {
-
   publicRuntimeConfig: {
     PROJECT_ROOT: __dirname,
     BASE_URL: '/',
@@ -12,13 +10,14 @@ const nextConfig = {
   },
 
   images: {
-    unoptimized: false,
+    unoptimized: true,  // 静态导出时必须设置为 true
     domains: ['s.cn.bing.net'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
     formats: ['image/webp'],
     minimumCacheTTL: 60,
     quality: 75,
+    remotePatterns: [],  // Next.js 15 推荐使用 remotePatterns
   },
   // Next.js 可以自动转译和捆绑来自本地包（如 monorepos）或外部依赖项
   // PS: 这是antd所使用到所有依赖
@@ -34,7 +33,15 @@ const nextConfig = {
     'rc-tooltip',
     'rc-tree',
     'rc-table',
-    '@babel/runtime'
+    'rc-input',  // 添加 rc-input
+    'rc-field-form',  // 添加相关依赖
+    'rc-cascader',
+    'rc-select',
+    'rc-checkbox',
+    'rc-menu',
+    '@babel/runtime',
+    'qiankun',
+    'framer-motion',
   ],
 
   async rewrites() {
@@ -45,16 +52,6 @@ const nextConfig = {
       },
     ];
   },
-  // redirects: 静态打包不会生效
-  // async redirects() {
-  //   return [
-  //     {
-  //       source: '/',
-  //       destination: '/home',
-  //       permanent: true,
-  //     },
-  //   ]
-  // },
 
   // 添加 ESLint 配置
   eslint: {
@@ -81,25 +78,45 @@ const nextConfig = {
   trailingSlash: true,  // 为所有页面添加尾部斜杠
 
   // 添加 webpack 配置
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@ant-design/icons/lib/dist$': '@ant-design/icons/lib/index.es.js',
-    };
-
-    // 确保 antd 的样式能够正确加载
+  webpack: (config, { isServer }) => {
+    // MJS 文件处理
     config.module.rules.push({
       test: /\.mjs$/,
       include: /node_modules/,
       type: 'javascript/auto'
     });
 
+    // 处理 ES 模块
+    config.module.rules.push({
+      test: /\.(js|mjs|jsx|ts|tsx)$/,
+      include: [
+        /node_modules\/antd/,
+        /node_modules\/@ant-design/,
+        /node_modules\/rc-/,
+      ],
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['next/babel'],
+          plugins: ['@babel/plugin-transform-modules-commonjs']
+        }
+      }
+    });
+
+    // 整体替换 regenerator 模块
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@babel/runtime/regenerator': require.resolve('@babel/runtime/regenerator/index.js'),
+      '@ant-design/icons/lib/dist$': '@ant-design/icons/lib/index.es.js',
+      'regenerator-runtime': require.resolve('regenerator-runtime'),
+    };
+
     return config;
   },
 
   // 禁用一些服务端特性
   experimental: {
-    esmExternals: false
+    esmExternals: false,
   }
 };
 
@@ -108,6 +125,7 @@ const withMDX = require('@next/mdx')({
   options: {
     remarkPlugins: [],
     rehypePlugins: [],
+    providerImportSource: "@mdx-js/react",
   },
 })
 

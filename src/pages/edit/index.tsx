@@ -19,22 +19,6 @@ const { Sider, Content } = Layout;
 const FolderManager = dynamic(() => import("./folder-manager"));
 const Interview = dynamic(() => import("./interview"));
 
-// 定义菜单配置
-const menuConfig = [
-  {
-    key: "folder-manager",
-    icon: <FolderOutlined />,
-    label: "文件夹管理",
-    path: "/edit/folder-manager",
-  },
-  {
-    key: "interview",
-    icon: <FileTextOutlined />,
-    label: "面试题管理",
-    path: "/edit/interview",
-  },
-];
-
 export default function TestLayout() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,44 +37,8 @@ export default function TestLayout() {
     checkAuth();
   }, []);
 
-  // 处理路由参数
-  useEffect(() => {
-    const key = searchParams.get("key");
-    if (key && menuConfig.some((item) => item.key === key)) {
-      setSelectedKey(key);
-    }
-  }, [searchParams]);
-
-  // 处理菜单点击
-  const handleMenuClick = async (key: string) => {
-    setLoading(true);
-    try {
-      const menuItem = menuConfig.find((item) => item.key === key);
-      if (menuItem) {
-        setSelectedKey(key);
-        router.push(menuItem.path);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className={styles.layout}>
-      <div className={styles.sider}>
-        <Menu
-          mode="vertical"
-          selectedKeys={[selectedKey]}
-          style={{ borderRight: 0 }}
-          items={menuConfig.map((item) => ({
-            key: item.key,
-            icon: item.icon,
-            label: item.label,
-            onClick: () => handleMenuClick(item.key),
-          }))}
-        />
-      </div>
-
       <Content className={styles.content}>
         {selectedKey === "folder-manager" && <FolderManager />}
         {selectedKey === "interview" && <Interview />}

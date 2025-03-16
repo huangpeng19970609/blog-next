@@ -19,6 +19,12 @@ const GameHub = () => {
       description: "面试题库",
       image: "/images/games/interview.jpg", // 需要添加对应的图片
     },
+    {
+      id: "vue-component-file",
+      title: "vue组件文件",
+      description: "vue组件文件",
+      image: "/images/games/interview.jpg", // 需要添加对应的图片
+    },
   ];
 
   return (

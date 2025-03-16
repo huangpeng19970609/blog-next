@@ -27,8 +27,6 @@ function HomePage(params: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-
     getLatestArticle().then((res) => {
       const lists = res.data.map((item) => ({
         id: item.id + "",

@@ -56,13 +56,8 @@
   }
 
   .rightPanel {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
-
     .articleListWrapper {
       padding: 16px;
-      
       .articleItem {
         position: relative;
         display: flex;

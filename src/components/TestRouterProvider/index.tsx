@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { Menu, Layout } from "antd";
-import { FolderOutlined, FileTextOutlined } from "@ant-design/icons";
+import dynamic from "next/dynamic";
 import styles from "./style.module.scss";
 import routes from "@/config/routes";
 
@@ -12,11 +12,6 @@ const editRoutes =
   routes.find((route) => route.path === "/edit")?.children || [];
 const menuConfig = editRoutes.map((route) => ({
   key: route.path.replace("/", ""),
-  icon: route.path.includes("folder") ? (
-    <FolderOutlined />
-  ) : (
-    <FileTextOutlined />
-  ),
   label: route.title,
   path: `/edit${route.path}`,
 }));
