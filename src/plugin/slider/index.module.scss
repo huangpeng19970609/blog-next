@@ -9,6 +9,7 @@
   position: relative;
   perspective: 2000px;
   transform-style: preserve-3d;
+
   
   > div {
     width: 100%;
@@ -70,8 +71,8 @@
 .button-list {
   .list-container {
     position: absolute;
-    left: -10px;
-    top: 10%;
+    left: -100px;
+    top: 36%;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;

@@ -101,3 +101,15 @@ html {
   background-color: #e6e6e6; /* 悬停状态下滑块背景颜色 */
 }
 
+
+
+.global-hover-color {
+  &:hover {
+    color: transparent !important;
+    background-image: linear-gradient(45deg, var(--font-color), var(--font-color), #f06292);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+  }
+}

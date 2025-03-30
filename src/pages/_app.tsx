@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import { AppPropsWithLayout } from "@/type/next.type.ts";
 import "./global.scss";
 import "./normal.css";
+import "./animation.scss";
 import "@/plugin/mouse-style/global.scss";
 import styles from "./_app.module.scss";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
@@ -41,7 +42,6 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     // 设置页面滚动行为
-    document.body.style.overflow = isHomePage ? "hidden" : "auto";
 
     // 清除之前可能存在的所有事件监听器
     const cleanupListeners = () => {

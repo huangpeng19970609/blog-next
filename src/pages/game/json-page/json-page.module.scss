@@ -1,0 +1,129 @@
+.container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h3 {
+    margin: 0;
+    color: var(--font-color);
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.content {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 180px);
+  
+  @media (max-width: 992px) {
+    flex-direction: column;
+    height: auto;
+  }
+}
+
+.inputSection, .outputSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+  @media (max-width: 992px) {
+    width: 100%;
+  }
+}
+
+.card {
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--hp-line-color);
+  
+  :global(.ant-card-head) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    :global(.ant-card-head-title) {
+      color: var(--font-color);
+    }
+  }
+  
+  :global(.ant-card-body) {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+  }
+}
+
+.textarea {
+  width: 100%;
+  font-family: 'Consolas', 'Monaco', monospace;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: var(--font-color);
+  border-color: rgba(255, 255, 255, 0.1);
+  
+  &:hover, &:focus {
+    border-color: var(--hp-line-color);
+  }
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.jsonViewer {
+  font-family: 'Consolas', 'Monaco', monospace;
+  padding: 10px;
+  overflow: auto;
+  height: 100%;
+  color: var(--font-color);
+}
+
+.jsonObject, .jsonArray {
+  margin-left: 20px;
+}
+
+.jsonArrayItems, .jsonProperties {
+  margin-left: 20px;
+}
+
+.jsonKey {
+  color: #9cdcfe;
+}
+
+.jsonString {
+  color: #ce9178;
+}
+
+.jsonNumber {
+  color: #b5cea8;
+}
+
+.jsonBoolean {
+  color: #569cd6;
+}
+
+.jsonBracket {
+  color: #d4d4d4;
+}
+
+.jsonColon, .jsonComma {
+  color: #d4d4d4;
+}

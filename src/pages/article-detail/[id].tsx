@@ -44,7 +44,7 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
   }
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "90%", height: "100%", marginLeft: "5%" }}>
       <ArticleEditor
         title={title}
         value={content}

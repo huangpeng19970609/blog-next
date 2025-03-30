@@ -1,0 +1,94 @@
+.settingModal {
+  :global(.ant-modal-content) {
+    padding: 16px;
+  }
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.themeSettings {
+  margin-top: 12px;
+}
+
+.useCustomTheme {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  
+  span {
+    margin-right: 8px;
+  }
+}
+
+.presetThemes {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.themeItem {
+  height: 60px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.selected {
+    box-shadow: 0 0 0 2px #1677ff;
+  }
+}
+
+.themeSample {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-bottom: 2px solid;
+}
+
+.colorFormRow {
+  display: flex;
+  gap: 16px;
+  
+  :global(.ant-form-item) {
+    flex: 1;
+    margin-bottom: 16px;
+  }
+}
+
+.colorForm {
+  margin-top: 12px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}

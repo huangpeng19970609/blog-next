@@ -22,7 +22,13 @@ const GameHub = () => {
     {
       id: "vue-component-file",
       title: "vue组件文件",
-      description: "vue组件文件",
+      description: "我的一些参考的vue文件",
+      image: "/images/games/interview.jpg", // 需要添加对应的图片
+    },
+    {
+      id: "json-page",
+      title: "json文件",
+      description: "json文件",
       image: "/images/games/interview.jpg", // 需要添加对应的图片
     },
   ];

@@ -8,20 +8,38 @@ import Link from "next/link";
 import styles from "./index.module.scss";
 import { useRouter } from "next/router";
 import { Button } from "antd";
-import { LoginOutlined } from "@ant-design/icons";
+import { LoginOutlined, SettingOutlined } from "@ant-design/icons";
 import routes from "@/config/routes";
 import { useState, useEffect } from "react";
 import { request } from "@/request";
+import SettingPage from "@/page-components/setting-page";
+import { getUseCustomTheme, getThemeSettings } from "@/utils/cookie";
+import { ColorUtils } from "@/utils/css";
 
 export default function Header() {
   const router = useRouter();
 
   const [user, setUser] = useState(null);
-
   const [finnalyRoutes, setFinnalyRoutes] = useState([]);
+  const [lastActivePath, setLastActivePath] = useState("");
+  const [settingVisible, setSettingVisible] = useState(false);
 
   const isActive = (path: string) => {
-    return router.pathname === path ? styles.active : "";
+    if (router.pathname === path) {
+      if (lastActivePath !== path) {
+        setLastActivePath(path);
+      }
+      return styles.active;
+    }
+
+    if (
+      path === lastActivePath &&
+      !finnalyRoutes.some((route) => route.path === router.pathname)
+    ) {
+      return styles.active;
+    }
+
+    return "";
   };
 
   useEffect(() => {
@@ -43,12 +61,45 @@ export default function Header() {
     setFinnalyRoutes(finnalyRoutes);
   }, []);
 
-  // const handleLogin = () => {
-  //   if (router.pathname === "/login") {
-  //     return;
-  //   }
-  //   router.push("/login");
-  // };
+  useEffect(() => {
+    const matchedRoute = finnalyRoutes.find(
+      (route) => route.path === router.pathname
+    );
+    if (matchedRoute) {
+      setLastActivePath(matchedRoute.path);
+    } else if (lastActivePath === "" && finnalyRoutes.length > 0) {
+      setLastActivePath(finnalyRoutes[0].path);
+    }
+  }, [router.pathname, finnalyRoutes]);
+
+  useEffect(() => {
+    // 在组件加载时检查是否有自定义主题设置
+    const useCustomTheme = getUseCustomTheme();
+    if (useCustomTheme) {
+      const themeSettings = getThemeSettings();
+      if (themeSettings) {
+        // 应用保存的主题设置
+        if (themeSettings.fontColor) {
+          ColorUtils.changeFontColor(themeSettings.fontColor);
+        }
+        if (themeSettings.bgColor) {
+          ColorUtils.changeMainColor(themeSettings.bgColor);
+        }
+        if (themeSettings.paddingColor) {
+          ColorUtils.changePaddingColor(themeSettings.paddingColor);
+        }
+        if (themeSettings.titleColor) {
+          ColorUtils.changeTitleColor(themeSettings.titleColor);
+        }
+        if (themeSettings.buttonColor) {
+          document.documentElement.style.setProperty(
+            "--button-color",
+            themeSettings.buttonColor
+          );
+        }
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -64,13 +115,23 @@ export default function Header() {
     });
   };
 
+  const handleOpenSetting = () => {
+    setSettingVisible(true);
+  };
+
+  const handleCloseSetting = () => {
+    setSettingVisible(false);
+  };
+
   return (
     <div className={styles.header}>
       <div className={styles.leftMenu}>
         {finnalyRoutes.map((route) => (
           <div
             key={route.path}
-            className={`${styles["font-style"]} ${isActive(route.path)}`}
+            className={`${styles["font-style"]} ${isActive(
+              route.path
+            )} global-hover-color`}
           >
             <Link href={route.path} replace={true}>
               {route.title}
@@ -78,8 +139,17 @@ export default function Header() {
           </div>
         ))}
       </div>
-      {/* <div className={styles.rightMenu}>
-        {user ? (
+      <div className={styles.rightMenu}>
+        <Button
+          type="text"
+          icon={<SettingOutlined />}
+          onClick={handleOpenSetting}
+          className={styles.settingBtn}
+        >
+          设置
+        </Button>
+        <SettingPage visible={settingVisible} onClose={handleCloseSetting} />
+        {/* {user ? (
           <Button
             type="primary"
             icon={<LoginOutlined />}
@@ -91,8 +161,8 @@ export default function Header() {
           <Button type="primary" icon={<LoginOutlined />} onClick={handleLogin}>
             登录
           </Button>
-        )}
-      </div> */}
+        )} */}
+      </div>
     </div>
   );
 }

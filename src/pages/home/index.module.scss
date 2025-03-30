@@ -1,3 +1,6 @@
+.pcContainer {
+  overflow: hidden;
+}
 .left, .right {
   height: 100%;
   width: 100%;
@@ -17,13 +20,12 @@
   width: 50%;
   position: absolute;
   right: 0%;
+  top: 0;
   z-index: 1;
 }
 .container {
   display: flex;
-  margin-top: 150px;
-  // header 高度 + padding高度 一共为 90 + 150
-  height: calc(100vh - 90px);
+  min-height: 600px;
 }
 
 // 右侧区域
@@ -46,11 +48,6 @@
       margin-right: 0.1em;
       line-height: 1em;
       transition: all 0.3s ease;
-
-      &:hover {
-        text-shadow: 2px 2px 8px rgba(255, 255, 255, 0.3);
-        transform: scale(1.1);
-      }
     }
 
     &:hover {
@@ -69,6 +66,10 @@
     -webkit-box-orient: vertical;
     color: var(--font-color);
   }
+
+  .title, .content {
+    cursor: pointer;
+  }
 }
 
 @keyframes fadeInUp {
@@ -80,4 +81,80 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+// 为移动端添加的样式
+.mobileContainer {
+  padding: 16px;
+  width: 100%;
+}
+
+.mobileTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.mobileListItem {
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.mobileCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.mobileCardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileImageContainer {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.mobileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobileTextContent {
+  padding: 12px;
+}
+
+.mobileCardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.mobileCardDescription {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.themeNotice {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }

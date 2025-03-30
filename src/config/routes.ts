@@ -28,6 +28,10 @@ const routes: RouteConfig[] = [
     title: "模块中心",
   },
   {
+    path: "/static-data",
+    title: "统计",
+  },
+  {
     path: "/edit",
     title: "编辑",
     children: [
@@ -38,6 +42,10 @@ const routes: RouteConfig[] = [
       {
         path: "/interview",
         title: "面试题管理",
+      },
+      {
+        path: "/json-page",
+        title: "josn转化工具",
       },
     ],
     hidden: true,
