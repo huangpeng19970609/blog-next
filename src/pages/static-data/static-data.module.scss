@@ -1,6 +1,22 @@
 .container {
   width: 100%;
   padding: 20px;
+  :global(.ant-tabs-tab) {
+    color: var(--font-color) !important;
+  }
+  
+  :global(.ant-tabs-ink-bar) {
+    background-color: var(--hp-line-color) !important;
+  } 
+
+  :global(.ant-tabs-tab-btn) {  
+    color: var(--font-color) !important;
+  }
+
+  :global(.ant-tabs-tab-active .ant-tabs-tab-btn) { 
+    color: var(--hp-line-color) !important;
+    font-weight: bold;
+  }
 }
 
 .gridContainer {
@@ -47,8 +63,8 @@
 .gridItemContent {
   padding: 20px;
   min-height: 200px;
-  display: flex;
-  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
   color: var(--font-color);
   
   h3 {
@@ -60,9 +76,19 @@
     padding-bottom: 8px;
   }
   
+  h4 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
   p {
     margin: 5px 0;
   }
+}
+
+.section {
+  margin-bottom: 16px;
 }
 
 .list {
@@ -71,14 +97,24 @@
   margin: 0;
   
   li {
-    margin-bottom: 8px;
-    padding-bottom: 5px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
     
     &:last-child {
       border-bottom: none;
     }
   }
+}
+
+.articleMeta, .userMeta, .folderMeta, .questionMeta {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 4px;
+}
+
+.userName, .folderName {
+  font-weight: bold;
 }
 
 .loadingContainer {
@@ -96,4 +132,7 @@
   height: 400px;
   color: #ff4d4f;
   font-size: 1.2rem;
-} 
+}
+
+
+

@@ -25,10 +25,23 @@ export interface IArticleItem {
   status?: string;
 }
 
+// 新增：带内容的文章详情接口
+export interface IArticleWithContent extends IArticleItem {
+  content: string;
+  cover_url: string;
+  description: string;
+  parent_id: number;
+  tags: any[];
+  updated_at: string;
+  user_id: number;
+}
+
 export interface IArticles {
   status_distribution: IArticleStatusDistribution;
   top_articles: IArticleItem[];
   recent_articles: IArticleItem[];
+  // 新增：带内容的最近文章列表
+  recent_articles_with_content: IArticleWithContent[];
 }
 
 // 文件夹数据接口
