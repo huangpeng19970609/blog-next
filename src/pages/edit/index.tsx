@@ -7,7 +7,6 @@ import { Button, Layout, Table, Modal, Input, List, Menu } from "antd";
 import { FolderOutlined, FileTextOutlined } from "@ant-design/icons";
 import styles from "./index.module.scss";
 import { useState, useEffect } from "react";
-import ArticleEditor from "@/components/ArticleEditor";
 import { useRouter, useSearchParams } from "next/navigation";
 import { openNotification } from "@/utils/message";
 import { isVerifyToken } from "@/request/user";
@@ -16,8 +15,19 @@ import dynamic from "next/dynamic";
 
 const { Sider, Content } = Layout;
 
-const FolderManager = dynamic(() => import("./folder-manager"));
-const Interview = dynamic(() => import("./interview"));
+// 懒加载这些组件
+const FolderManager = dynamic(() => import("./folder-manager"), {
+  loading: () => <div>加载文件夹管理器中...</div>,
+});
+
+const Interview = dynamic(() => import("./interview"), {
+  loading: () => <div>加载面试题管理器中...</div>,
+});
+
+const ArticleEditor = dynamic(() => import("@/components/ArticleEditor"), {
+  loading: () => <div>加载编辑器中...</div>,
+  ssr: false,
+});
 
 export default function TestLayout() {
   const router = useRouter();
@@ -52,7 +62,7 @@ export default function TestLayout() {
             readonly={false}
             onSuccess={() => {
               openNotification("文章创建成功", "文章创建成功", "success");
-              handleMenuClick("articles");
+              setSelectedKey("articles");
             }}
           />
         )}

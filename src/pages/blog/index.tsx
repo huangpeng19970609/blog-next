@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { Switch, message } from "antd";
 import styles from "./index.module.scss";
-import FolderList from "./folder-list";
-import List from "./list";
 import { getFileTree, IFolder } from "@/utils/node";
-import { staticRequest } from "@/request";
-import { Article } from "@/type/request.type";
 import getConfig from "next/config";
+import dynamic from "next/dynamic";
+
+// 懒加载组件
+const FolderList = dynamic(() => import("./folder-list"), {
+  loading: () => <div>加载文件夹视图中...</div>,
+});
+
+const List = dynamic(() => import("./list"), {
+  loading: () => <div>加载列表视图中...</div>,
+});
 
 function Blog({ lists }: { lists: string }) {
   const [messageApi, contextHolder] = message.useMessage();

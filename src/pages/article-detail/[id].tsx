@@ -2,8 +2,14 @@ import { useEffect, useState } from "react";
 import { request } from "@/request";
 import { Spin } from "antd";
 import { useRouter } from "next/router";
-import ArticleEditor from "@/components/ArticleEditor";
 import { getArticleDetail } from "@/request/article/api";
+import dynamic from "next/dynamic";
+
+// 懒加载文章编辑器组件
+const ArticleEditor = dynamic(() => import("@/components/ArticleEditor"), {
+  loading: () => <Spin tip="正在加载文章..." />,
+  ssr: false,
+});
 
 interface ArticleDetailProps {
   id: number;
@@ -40,7 +46,7 @@ export default function ArticleDetail({ id }: ArticleDetailProps) {
   };
 
   if (loading) {
-    return <Spin />;
+    return <Spin tip="正在加载文章信息..." />;
   }
 
   return (

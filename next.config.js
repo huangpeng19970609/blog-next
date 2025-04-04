@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const TerserPlugin = require('terser-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 const nextConfig = {
   publicRuntimeConfig: {
@@ -66,7 +68,7 @@ const nextConfig = {
   },
 
   // 修改输出配置
-  output: 'export',  // 设置输出模式为静态导出
+  // output: 'export',  // 设置输出模式为静态导出
 
   // 确保图片配置只出现一次
   images: {
@@ -77,47 +79,121 @@ const nextConfig = {
   // 如果有动态路由，需要配置
   trailingSlash: true,  // 为所有页面添加尾部斜杠
 
-  // 添加 webpack 配置
-  webpack: (config, { isServer }) => {
-    // MJS 文件处理
-    config.module.rules.push({
-      test: /\.mjs$/,
-      include: /node_modules/,
-      type: 'javascript/auto'
-    });
-
-    // 处理 ES 模块
-    config.module.rules.push({
-      test: /\.(js|mjs|jsx|ts|tsx)$/,
-      include: [
-        /node_modules\/antd/,
-        /node_modules\/@ant-design/,
-        /node_modules\/rc-/,
-      ],
-      use: {
-        loader: 'babel-loader',
-        options: {
-          presets: ['next/babel'],
-          plugins: ['@babel/plugin-transform-modules-commonjs']
-        }
-      }
-    });
-
-    // 整体替换 regenerator 模块
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@babel/runtime/regenerator': require.resolve('@babel/runtime/regenerator/index.js'),
-      '@ant-design/icons/lib/dist$': '@ant-design/icons/lib/index.es.js',
-      'regenerator-runtime': require.resolve('regenerator-runtime'),
-    };
-
-    return config;
-  },
 
   // 禁用一些服务端特性
   experimental: {
     esmExternals: false,
-  }
+  },
+
+  // 添加静态优化配置
+  poweredByHeader: false, // 移除X-Powered-By头
+
+  // 优化webpack配置
+  webpack: (config, { isServer, dev }) => {
+    // 客户端webpack配置
+    if (!isServer) {
+      // 优化分块策略
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        maxInitialRequests: 25,
+        maxAsyncRequests: 30,
+        cacheGroups: {
+          // 默认cacheGroups
+          defaultVendors: false,
+          default: false,
+
+          // 首页核心依赖
+          homepage: {
+            test: /[\\/]node_modules[\\/](react|react-dom|next|axios)[\\/]/,
+            name: 'vendors-homepage',
+            chunks: (chunk) => {
+              return chunk.name === 'pages/index' || chunk.name === 'pages/_app';
+            },
+            priority: 40,
+            enforce: true,
+          },
+
+          // antd相关库
+          antd: {
+            test: /[\\/]node_modules[\\/](antd|@ant-design|rc-[a-z-]+)[\\/]/,
+            name: 'vendors-antd',
+            priority: 30,
+            enforce: true,
+          },
+
+          // 编辑器相关库
+          editor: {
+            test: /[\\/]node_modules[\\/](bytemd|codemirror|juejin-markdown-themes|katex|markdown-it|highlight\.js)[\\/]/,
+            name: 'vendors-editor',
+            priority: 20,
+            chunks: (chunk) => {
+              return !chunk.name?.includes('pages/index');
+            },
+            enforce: true,
+          },
+
+          // 图表相关库
+          charts: {
+            test: /[\\/]node_modules[\\/](echarts|chart\.js|d3|victory)[\\/]/,
+            name: 'vendors-charts',
+            priority: 15,
+            enforce: true,
+          },
+
+          // 格式化、日期、工具库
+          utils: {
+            test: /[\\/]node_modules[\\/](lodash|moment|dayjs|date-fns)[\\/]/,
+            name: 'vendors-utils',
+            priority: 15,
+            enforce: true,
+          },
+
+          // 其他第三方库
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors-others',
+            priority: 10,
+            enforce: true,
+            maxSize: 300000, // 限制为300KB
+            minChunks: 2, // 至少被引用两次才会被打包到这里
+          },
+        },
+      };
+
+      // 生产环境添加压缩和压缩插件
+      if (!dev) {
+        // 使用Terser进行更激进的压缩
+        config.optimization.minimizer = [
+          new TerserPlugin({
+            terserOptions: {
+              compress: {
+                drop_console: true, // 移除console
+                pure_funcs: ['console.log', 'console.info'], // 移除特定函数调用
+              },
+              mangle: true,
+              output: {
+                comments: false, // 移除注释
+              },
+            },
+            extractComments: false,
+          }),
+        ];
+
+        // 添加gzip预压缩
+        config.plugins.push(
+          new CompressionPlugin({
+            filename: '[path][base].gz',
+            algorithm: 'gzip',
+            test: /\.(js|css|html|svg)$/,
+            threshold: 10240, // 仅处理大于10KB的文件
+            minRatio: 0.8, // 仅当压缩率高于0.8时才压缩
+          })
+        );
+      }
+    }
+
+    return config;
+  },
 };
 
 const withMDX = require('@next/mdx')({

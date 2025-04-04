@@ -9,6 +9,7 @@ import {
   Radio,
   Row,
   Col,
+  Spin,
 } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,20 @@ import { getAllCategories } from "@/request/interview/category";
 import { getAllTags } from "@/request/interview/tag";
 import { openNotification } from "@/utils/message";
 import type { Question, Category, Tag } from "@/type/request.interview";
-import QuestionEditor from "@/page-components/components/QuestionEditor";
+import dynamic from "next/dynamic";
+
+// 懒加载问题编辑器组件
+const QuestionEditor = dynamic(
+  () => import("@/page-components/components/QuestionEditor"),
+  {
+    loading: () => (
+      <div style={{ textAlign: "center", padding: "100px" }}>
+        <Spin tip="加载编辑器中..." />
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 export default function Questions() {
   const router = useRouter();
@@ -254,18 +268,16 @@ export default function Questions() {
           />
         </>
       ) : showEditor ? (
-        <div>
-          <QuestionEditor
-            mode={modalMode}
-            initialData={currentQuestion}
-            categories={categories}
-            tags={tags}
-            onCancel={handleCloseModal}
-            onSuccess={() => {
-              handleCloseModal();
-            }}
-          />
-        </div>
+        <QuestionEditor
+          mode={modalMode}
+          initialData={currentQuestion}
+          categories={categories}
+          tags={tags}
+          onCancel={handleCloseModal}
+          onSuccess={() => {
+            handleCloseModal();
+          }}
+        />
       ) : null}
     </div>
   );

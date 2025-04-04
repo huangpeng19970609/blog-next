@@ -2,6 +2,10 @@
 
 ### 生产环境-更新依赖
 
+
+
+1. 切换目标用户 例如 
+
 1. 激活生产环境 并且安装
 
 ```cmd
@@ -657,38 +661,6 @@ sleep 0.5
 
 
 
-## 4.8 域名和解析
-
-### 4.8.1 购买域名
-
-![image-20220322121538743](assets/image-20220322121538743.png)
-
-
-
-### 4.8.2 解析
-
-就是让域名和我们刚才买的服务器绑定，以后通过域名就可以找到那台服务器，不需要再使用IP了。
-
-![image-20220322121751891](assets/image-20220322121751891.png)
-
-![image-20220322121906853](assets/image-20220322121906853.png)
-
-![image-20220322122037913](assets/image-20220322122037913.png)
-
-
-
-解析成功后，基于域名就可以访问了。
-
-![image-20220322124717829](assets/image-20220322124717829.png)
-
-
-
-注意：域名需要备案后才能使用。
-
-
-
-
-
 ## redis
 
 1. 使用修改systemd服务配置 或许是更好的选择
@@ -768,9 +740,6 @@ https://tongyi.aliyun.com/?sessionId=3e1a404d805b4b23b73ff4f4e8206c4c
    sudo firewall-cmd --zone=public --add-port=6379/tcp --permanent
    sudo firewall-cmd --reload
    ```
-
-5. 
-
 
 
 
